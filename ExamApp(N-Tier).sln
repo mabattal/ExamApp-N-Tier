@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamApp.Repositories", "Repositories\ExamApp.Repositories.csproj", "{AB7EF241-9698-48DF-B5AC-AAC108397BB8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamApp.Services", "Services\ExamApp.Services.csproj", "{B370B55A-4E52-4041-9A28-565A8B585A45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamApp.API", "App.API\ExamApp.API.csproj", "{B3435617-71D3-4F62-95DB-CC4F57A0C910}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamApp.API", "ExamApp.API\ExamApp.API.csproj", "{2519A72F-A8A6-4D98-935B-AB587260B887}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{B370B55A-4E52-4041-9A28-565A8B585A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B370B55A-4E52-4041-9A28-565A8B585A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B370B55A-4E52-4041-9A28-565A8B585A45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3435617-71D3-4F62-95DB-CC4F57A0C910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3435617-71D3-4F62-95DB-CC4F57A0C910}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3435617-71D3-4F62-95DB-CC4F57A0C910}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3435617-71D3-4F62-95DB-CC4F57A0C910}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2519A72F-A8A6-4D98-935B-AB587260B887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2519A72F-A8A6-4D98-935B-AB587260B887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2519A72F-A8A6-4D98-935B-AB587260B887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2519A72F-A8A6-4D98-935B-AB587260B887}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
