@@ -1,4 +1,5 @@
-﻿using ExamApp.Repositories.Entities;
+﻿using System.Reflection;
+using ExamApp.Repositories.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExamApp.Repositories
@@ -13,6 +14,8 @@ namespace ExamApp.Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
             base.OnModelCreating(modelBuilder);
         }
     }

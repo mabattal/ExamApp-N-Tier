@@ -5,14 +5,9 @@ namespace ExamApp.Repositories.Entities
     public class User
     {
         public int UserId { get; set; }
-        public string? UserName { get; set; }
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        public string Email { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
         public UserRole Role { get; set; }
-
-        // Navigation properties
-        public virtual ICollection<Answer> Answers { get; set; }
-        public virtual ICollection<ExamResult> ExamResults { get; set; }
-        public virtual ICollection<Exam> CreatedExams { get; set; }
+        public bool IsDeleted { get; set; } = false; // Soft delete için bayrak
     }
 }
