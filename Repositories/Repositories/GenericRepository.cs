@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace ExamApp.Repositories
+namespace ExamApp.Repositories.Repositories
 {
     public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> where T : class
     {
         private readonly DbSet<T> _dbSet = context.Set<T>();
 
-        public IQueryable<T> GetAll()     
+        public IQueryable<T> GetAll()
         {
             return _dbSet.AsQueryable().AsNoTracking();
         }
