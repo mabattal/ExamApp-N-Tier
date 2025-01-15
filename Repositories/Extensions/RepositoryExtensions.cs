@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExamApp.Repositories.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,14 @@ namespace ExamApp.Repositories.Extensions
                     sqlServerOptionsAction.MigrationsAssembly(typeof(RepositoryAssembly).Assembly.FullName);
                 });
             });
+
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IAnswerRepository, AnswerRepository>();
+            services.AddScoped<IExamRepository, ExamRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IExamRepository, ExamRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
 
             return services;
         }
