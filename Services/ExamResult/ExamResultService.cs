@@ -1,6 +1,6 @@
 ﻿using ExamApp.Repositories.Repositories;
 
-namespace ExamApp.Services.Services
+namespace ExamApp.Services.ExamResult
 {
     public class ExamResultService(IExamResultRepository examResultRepository) : IExamResultService
     {

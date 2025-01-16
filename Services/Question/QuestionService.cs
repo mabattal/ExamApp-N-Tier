@@ -1,6 +1,6 @@
 ﻿using ExamApp.Repositories.Repositories;
 
-namespace ExamApp.Services.Services
+namespace ExamApp.Services.Question
 {
     public class QuestionService(IQuestionRepository questionRepository) : IQuestionService
     {

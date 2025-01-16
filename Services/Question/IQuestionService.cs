@@ -1,4 +1,4 @@
-﻿namespace ExamApp.Services.Services
+﻿namespace ExamApp.Services.Question
 {
     public interface IQuestionService
     {
