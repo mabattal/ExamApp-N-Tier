@@ -13,6 +13,7 @@ namespace ExamApp.Repositories.Configurations
             builder.Property(u => u.PasswordHash).IsRequired();
             builder.Property(u => u.Role).IsRequired();
             builder.HasQueryFilter(u => !u.IsDeleted);
+            builder.Property(u => u.FullName).IsRequired().HasMaxLength(100);
         }
     }
 }

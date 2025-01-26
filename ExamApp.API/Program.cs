@@ -1,7 +1,5 @@
-using ExamApp.Repositories;
 using ExamApp.Repositories.Extensions;
 using ExamApp.Services.Extensions;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//Repository ve Service'leri ekledik(Extension olarak)
 builder.Services.AddRepositories(builder.Configuration).AddServices(builder.Configuration);
 
 
