@@ -1,6 +1,6 @@
 ﻿namespace ExamApp.Services.Answer
 {
-    public record UpdateAnswerRequestDto(int AnswerId, string SelectedAnswer, bool IsCorrect);
+    public record UpdateAnswerRequestDto(int AnswerId, int QuestionId, string SelectedAnswer, bool IsCorrect);
 
     //public record AnswerResponseDto
     //{
