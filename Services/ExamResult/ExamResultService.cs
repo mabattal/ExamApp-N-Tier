@@ -7,15 +7,15 @@ namespace ExamApp.Services.ExamResult
 {
     public class ExamResultService(IExamResultRepository examResultRepository, IQuestionRepository questionRepository, IAnswerRepository answerRepository, IUnitOfWork unitOfWork) : IExamResultService
     {
-        public async Task<ServiceResult<ExamResultResponseDto>> GetByIdAsync(int id)
+        public async Task<ServiceResult<ExamResultResponseDto?>> GetByIdAsync(int id)
         {
             var examResult = await examResultRepository.GetByIdAsync(id);
             if (examResult is null)
             {
-                return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound);
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
             var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers);
-            return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto);
+            return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
         public async Task<ServiceResult> StartExamAsync(int examId, int userId)

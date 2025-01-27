@@ -2,7 +2,7 @@
 {
     public interface IAnswerService
     {
-        Task<ServiceResult<AnswerResponseDto>> GetByIdAsync(int id);
+        Task<ServiceResult<AnswerResponseDto?>> GetByIdAsync(int id);
         Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest);
         Task<ServiceResult> UpdateAsync(int id, UpdateAnswerRequestDto updateAnswerRequest);
         Task<ServiceResult> DeleteAsync(int id);

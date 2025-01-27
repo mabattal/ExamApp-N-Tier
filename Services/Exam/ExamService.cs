@@ -90,7 +90,7 @@ namespace ExamApp.Services.Exam
                 exam.EndDate,
                 exam.Duration,
                 exam.CreatedBy,
-                exam.Instructor?.Email,
+                exam.Instructor!.Email,
                 exam.Questions.Select(q => new QuestionResponseDto(
                     q.QuestionId,
                     q.QuestionText,
@@ -102,7 +102,7 @@ namespace ExamApp.Services.Exam
                 )).ToList()
             );
 
-            return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto);
+            return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto!);
         }
     }
 }

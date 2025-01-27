@@ -7,17 +7,17 @@ namespace ExamApp.Services.Question
 {
     public class QuestionService(IQuestionRepository questionRepository, IUnitOfWork unitOfWork) : IQuestionService
     {
-        public async Task<ServiceResult<QuestionResponseDto>> GetByIdAsync(int id)
+        public async Task<ServiceResult<QuestionResponseDto?>> GetByIdAsync(int id)
         {
             var question = await questionRepository.GetByIdAsync(id);
             if (question is null)
             {
-                return ServiceResult<QuestionResponseDto>.Fail("Question not found", HttpStatusCode.NotFound);
+                return ServiceResult<QuestionResponseDto>.Fail("Question not found", HttpStatusCode.NotFound)!;
             }
 
             var questionAsDto = new QuestionResponseDto(question.QuestionId, question.QuestionText, question.OptionA, question.OptionB, question.OptionC, question.OptionD, question.CorrectAnswer);
 
-            return ServiceResult<QuestionResponseDto>.Success(questionAsDto);
+            return ServiceResult<QuestionResponseDto>.Success(questionAsDto)!;
         }
 
         public async Task<ServiceResult<CreateQuestionResponseDto>> AddAsync(CreateQuestionRequestDto createQuestionRequest)

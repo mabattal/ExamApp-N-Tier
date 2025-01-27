@@ -60,17 +60,17 @@ namespace ExamApp.Services.Answer
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult<AnswerResponseDto>> GetByIdAsync(int id)
+        public async Task<ServiceResult<AnswerResponseDto?>> GetByIdAsync(int id)
         {
             var answer = await answerRepository.GetByIdAsync(id);
 
             if (answer is null)
             {
-                return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound);
+                return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
             var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer, answer.IsCorrect);
 
-            return ServiceResult<AnswerResponseDto>.Success(answerAsDto);
+            return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
 
         public async Task<ServiceResult> DeleteAsync(int id)
