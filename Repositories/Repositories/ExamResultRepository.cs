@@ -7,7 +7,8 @@ namespace ExamApp.Repositories.Repositories
     {
         public Task<double> GetAverageScoreByExamAsync(int examId)
         {
-            return context.ExamResults.Where(er => er.ExamId == examId).AverageAsync(er => er.Score);
+
+            return context.ExamResults.Where(er => er.ExamId == examId && er.Score != null).AverageAsync(er => (double)er.Score);
         }
 
         public IQueryable<ExamResult> GetByUserId(int userId)
