@@ -16,6 +16,19 @@ namespace ExamApp.Services.User
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
+        public async Task<ServiceResult<List<UserResponseDto>>> GetPagedAllAsync(int pageNumber, int pageSize)
+        {
+            // pageNumber - pageSize
+            // 1 - 10 => 0, 10  kayıt    skip(0).take(10)
+            // 2 - 10 => 11, 20 kayıt    skip(10).take(10)
+            // 3 - 10 => 21, 30 kayıt    skip(20).take(10)
+            // 4 - 10 => 31, 40 kayıt    skip(30).take(10)
+
+            var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
+            return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
+        }
+
         public async Task<ServiceResult<UserResponseDto?>> GetByIdAsync(int id)
         {
             var user = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true).FirstOrDefaultAsync();
@@ -92,5 +105,7 @@ namespace ExamApp.Services.User
             var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
+
+        
     }
 }

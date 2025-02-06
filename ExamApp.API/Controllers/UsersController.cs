@@ -17,6 +17,13 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [HttpGet("{pageNumber}/{pageSize}")]
+        public async Task<IActionResult> GetPagedAll(int pageNumber, int pageSize)
+        {
+            var result = await _userService.GetPagedAllAsync(pageNumber, pageSize);
+            return CreateActionResult(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
