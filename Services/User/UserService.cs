@@ -8,7 +8,7 @@ namespace ExamApp.Services.User
 {
     public class UserService(IUserRepository userRepository, IUnitOfWork unitOfWork) : IUserService
     {
-        public async Task<ServiceResult<List<UserResponseDto>>> GetAll()
+        public async Task<ServiceResult<List<UserResponseDto>>> GetAllAsync()
         {
             var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).ToListAsync();
             var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
@@ -57,7 +57,7 @@ namespace ExamApp.Services.User
             userRepository.Update(user);
             await unitOfWork.SaveChangeAsync();
 
-            return ServiceResult.Success();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
         public async Task<ServiceResult> DeleteAsync(int id)
@@ -72,7 +72,7 @@ namespace ExamApp.Services.User
             userRepository.Update(user);
             await unitOfWork.SaveChangeAsync();
 
-            return ServiceResult.Success();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
         public async Task<ServiceResult<UserResponseDto?>> GetByEmailAsync(string email)

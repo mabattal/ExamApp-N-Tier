@@ -4,7 +4,7 @@ namespace ExamApp.Services.User
 {
     public interface IUserService
     {
-        Task<ServiceResult<List<UserResponseDto>>> GetAll();
+        Task<ServiceResult<List<UserResponseDto>>> GetAllAsync();
         Task<ServiceResult<UserResponseDto?>> GetByIdAsync(int id);
         Task<ServiceResult<CreateUserResponseDto>> AddAsync(CreateUserRequestDto createUserRequest);
         Task<ServiceResult> UpdateAsync(int id, UpdateUserRequestDto updateUserRequest);
