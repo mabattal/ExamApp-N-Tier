@@ -15,5 +15,10 @@ namespace ExamApp.Repositories.Repositories
         {
             return context.ExamResults.Where(er => er.UserId == userId);
         }
+
+        public IQueryable<ExamResult> GetByUserIdAndExamId(int userId, int examId)
+        {
+            return context.ExamResults.Where(er => er.UserId == userId && er.ExamId == examId);
+        }
     }
 }

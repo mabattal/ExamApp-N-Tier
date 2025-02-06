@@ -6,6 +6,7 @@ namespace ExamApp.Repositories.Repositories
     {
         Task<double> GetAverageScoreByExamAsync(int examId);        //genel başarı durumu
         IQueryable<ExamResult> GetByUserId(int userId);
+        IQueryable<ExamResult> GetByUserIdAndExamId(int userId, int examId);
     }
 
 }

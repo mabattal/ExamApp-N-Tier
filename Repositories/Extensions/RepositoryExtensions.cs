@@ -24,7 +24,7 @@ namespace ExamApp.Repositories.Extensions
             services.AddScoped<IExamRepository, ExamRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IExamRepository, ExamRepository>();
+            services.AddScoped<IExamResultRepository, ExamResultRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

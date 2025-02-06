@@ -11,6 +11,7 @@ namespace ExamApp.Repositories.Configurations
             builder.HasKey(a => a.AnswerId);
             builder.Property(a => a.SelectedAnswer).IsRequired().HasMaxLength(1); // A, B, C, D
             builder.Property(a => a.IsCorrect).IsRequired();
+            builder.Property(a => a.CreatedDate).IsRequired();
 
             builder.HasOne(a => a.User)
                 .WithMany()

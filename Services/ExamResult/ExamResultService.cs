@@ -5,7 +5,7 @@ using System.Net;
 
 namespace ExamApp.Services.ExamResult
 {
-    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionRepository questionRepository, IAnswerRepository answerRepository, IUnitOfWork unitOfWork) : IExamResultService
+    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionRepository questionRepository, IAnswerRepository answerRepository, IExamRepository examRepository, IUnitOfWork unitOfWork) : IExamResultService
     {
         public async Task<ServiceResult<ExamResultResponseDto?>> GetByIdAsync(int id)
         {
@@ -20,17 +20,28 @@ namespace ExamApp.Services.ExamResult
 
         public async Task<ServiceResult> StartExamAsync(int examId, int userId)
         {
+            var exam = await examRepository.GetByIdAsync(examId);
+            if (exam is null)
+            {
+                return ServiceResult.Fail("Exam not found.", HttpStatusCode.NotFound);
+            }
+
+            var questions = await questionRepository.GetByExamId(examId).ToListAsync();
+            if (!questions.Any())
+            {
+                return ServiceResult.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
+            }
+
             // Check if the exam has already been started by the user
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).SingleOrDefaultAsync();
             if (existingResult is not null)
             {
                 return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
             }
-            
-            var questions = await questionRepository.GetByExamId(examId).ToListAsync();
-            if (!questions.Any())
+
+            if (exam.StartDate > DateTime.Now)
             {
-                return ServiceResult.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
+                return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
             var examResult = new Repositories.Entities.ExamResult()
@@ -47,6 +58,12 @@ namespace ExamApp.Services.ExamResult
 
         public async Task<ServiceResult> SubmitExamAsync(int examId, int userId)
         {
+            var exam = await examRepository.GetByIdAsync(examId);
+            if (exam is null)
+            {
+                return ServiceResult.Fail("Exam not found.", HttpStatusCode.NotFound);
+            }
+
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).SingleOrDefaultAsync();
             if (existingResult is null)
             {
