@@ -98,6 +98,30 @@ namespace ExamApp.Services.ExamResult
             return ServiceResult.Success();
         }
 
+        public async Task<ServiceResult> AutoSubmitExpiredExamsAsync()
+        {
+            var expiredResults = await examResultRepository
+                .Where(x => x.CompletionDate == null && DateTime.UtcNow > x.StartDate.AddMinutes(x.Exam.Duration))
+                .Include(x => x.Exam)
+                .ToListAsync();
+
+            if (!expiredResults.Any())
+            {
+                return ServiceResult.Fail("No expired exams found.");
+            }
+
+            foreach (var result in expiredResults)
+            {
+                var submitResult = await SubmitExamAsync(result.ExamId, result.UserId);
+                if (submitResult.IsFail)
+                {
+                    return submitResult;        //SubmitExamAsync servisinden dönen hatayı geri döndürdük
+                }
+            }
+
+            return ServiceResult.Success();
+        }
+
         public async Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId)
         {
 
@@ -122,5 +146,6 @@ namespace ExamApp.Services.ExamResult
             
             return ServiceResult<ExamResultAverageScoreResponseDto>.Success(new ExamResultAverageScoreResponseDto(averageScore.Result));
         }
+
     }
 }
