@@ -1,7 +1,7 @@
 ﻿namespace ExamApp.Services.Question
 {
     public record UpdateQuestionRequestDto(
-        int QuestionId,
+        int ExamId,
         string QuestionText,
         string OptionA,
         string OptionB,

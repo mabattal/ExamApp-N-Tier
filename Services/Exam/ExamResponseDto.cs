@@ -1,6 +1,4 @@
-﻿using ExamApp.Services.Question;
-
-namespace ExamApp.Services.Exam
+﻿namespace ExamApp.Services.Exam
 {
     public record ExamResponseDto(
         int ExamId,
@@ -9,8 +7,7 @@ namespace ExamApp.Services.Exam
         DateTime StartDate,
         DateTime EndDate,
         int Duration,
-        int CreatedBy,
-        List<QuestionResponseDto> Questions
+        int CreatedBy
     );
 }
 

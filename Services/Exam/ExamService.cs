@@ -115,10 +115,7 @@ namespace ExamApp.Services.Exam
                 e.StartDate,
                 e.EndDate,
                 e.Duration,
-                e.CreatedBy,
-                e.Questions.Select(q => new QuestionResponseDto(
-                    q.QuestionId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD, q.CorrectAnswer
-                )).ToList()
+                e.CreatedBy
             )).ToList();
             return ServiceResult<List<ExamResponseDto>>.Success(examAsDto);
         }
@@ -133,12 +130,28 @@ namespace ExamApp.Services.Exam
                 e.StartDate,
                 e.EndDate,
                 e.Duration,
-                e.CreatedBy,
-                e.Questions.Select(q => new QuestionResponseDto(
-                    q.QuestionId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD, q.CorrectAnswer
-                )).ToList()
+                e.CreatedBy
             )).ToList();
             return ServiceResult<List<ExamResponseDto>>.Success(examAsDto);
+        }
+
+        public async Task<ServiceResult<ExamResponseDto?>> GetByIdAsync(int id)
+        {
+            var exam = await examRepository.GetByIdAsync(id);
+            if (exam is null)
+            {
+                return ServiceResult<ExamResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
+            }
+            var examAsDto = new ExamResponseDto(
+                exam.ExamId,
+                exam.Title,
+                exam.Description,
+                exam.StartDate,
+                exam.EndDate,
+                exam.Duration,
+                exam.CreatedBy
+            );
+            return ServiceResult<ExamResponseDto?>.Success(examAsDto);
         }
 
         public async Task<ServiceResult<ExamWithDetailsResponseDto?>> GetExamWithDetailsAsync(int examId)
@@ -164,6 +177,7 @@ namespace ExamApp.Services.Exam
                     exam.Instructor.IsDeleted),
                 exam.Questions.Select(q => new QuestionResponseDto(
                     q.QuestionId,
+                    q.ExamId,
                     q.QuestionText,
                     q.OptionA,
                     q.OptionB,
