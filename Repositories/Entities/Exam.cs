@@ -9,7 +9,7 @@
         public DateTime EndDate { get; set; }
         public int Duration { get; set; } // Dakika cinsinden
         public int CreatedBy { get; set; } // Eğitmen ID
-        public User? Instructor { get; set; }
+        public User Instructor { get; set; }
         public ICollection<Question> Questions { get; set; } = new List<Question>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ExamApp.Services.Question;
+using ExamApp.Services.User;
 
 namespace ExamApp.Services.Exam
 {
@@ -8,9 +9,8 @@ namespace ExamApp.Services.Exam
         string Description,
         DateTime StartDate,
         DateTime EndDate,
-        int Duration, // Dakika cinsinden
-        int CreatedBy, // Eğitmen ID
-        string InstructorMail, // Eğitmenin maili
-        ICollection<QuestionResponseDto> Questions // Soruların detayları
+        int Duration,
+        UserResponseDto Instructors,
+        ICollection<QuestionResponseDto> Questions
     );
 }

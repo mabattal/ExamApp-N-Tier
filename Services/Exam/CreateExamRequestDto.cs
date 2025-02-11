@@ -5,8 +5,7 @@
         string Description,
         DateTime StartDate,
         DateTime EndDate,
-        int Duration, // Dakika cinsinden
-        int CreatedBy, // Eğitmen ID
-        ICollection<int> QuestionIds // Soruların ID'leri
+        int Duration,
+        int CreatedBy
     );
 }

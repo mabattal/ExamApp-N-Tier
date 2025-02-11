@@ -53,7 +53,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Exam", b =>
@@ -90,7 +90,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("Exams");
+                    b.ToTable("Exams", (string)null);
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.ExamResult", b =>
@@ -134,7 +134,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ExamResults");
+                    b.ToTable("ExamResults", (string)null);
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Question", b =>
@@ -182,7 +182,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("ExamId");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Questions", (string)null);
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.User", b =>
@@ -215,7 +215,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Answer", b =>

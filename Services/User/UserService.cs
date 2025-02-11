@@ -40,6 +40,17 @@ namespace ExamApp.Services.User
             return ServiceResult<UserResponseDto>.Success(userAsDto)!;
         }
 
+        public async Task<ServiceResult<UserResponseDto?>> GetInstructorByIdAsync(int id)
+        {
+            var instructor = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true && u.Role == UserRole.Instructor).SingleOrDefaultAsync();
+            if (instructor is null)
+            {
+                return ServiceResult<UserResponseDto>.Fail("Instructor not found or not authorized.", HttpStatusCode.NotFound)!;
+            }
+            var userAsDto = new UserResponseDto(instructor.UserId, instructor.FullName, instructor.Email, instructor.Role, instructor.IsDeleted);
+            return ServiceResult<UserResponseDto>.Success(userAsDto)!;
+        }
+
         public async Task<ServiceResult<CreateUserResponseDto>> AddAsync(CreateUserRequestDto createUserRequest)
         {
             var user = new Repositories.Entities.User()
