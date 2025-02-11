@@ -14,7 +14,7 @@ namespace ExamApp.Repositories.Configurations
             builder.Property(q => q.OptionB).IsRequired().HasMaxLength(200);
             builder.Property(q => q.OptionC).IsRequired().HasMaxLength(200);
             builder.Property(q => q.OptionD).IsRequired().HasMaxLength(200);
-            builder.Property(q => q.CorrectAnswer).IsRequired().HasMaxLength(1); // A, B, C, D
+            builder.Property(q => q.CorrectAnswer).IsRequired().HasMaxLength(200);
 
             builder.HasOne(q => q.Exam)
                 .WithMany(e => e.Questions)

@@ -9,8 +9,8 @@ namespace ExamApp.Repositories.Configurations
         public void Configure(EntityTypeBuilder<Answer> builder)
         {
             builder.HasKey(a => a.AnswerId);
-            builder.Property(a => a.SelectedAnswer).IsRequired().HasMaxLength(1); // A, B, C, D
-            builder.Property(a => a.IsCorrect).IsRequired();
+            builder.Property(a => a.SelectedAnswer).HasMaxLength(200);
+            builder.Property(a => a.IsCorrect);
             builder.Property(a => a.CreatedDate).IsRequired();
 
             builder.HasOne(a => a.User)
