@@ -9,13 +9,13 @@ namespace ExamApp.Repositories.Configurations
         public void Configure(EntityTypeBuilder<ExamResult> builder)
         {
             builder.HasKey(er => er.ResultId);
-            builder.Property(er => er.Score).HasColumnType("decimal(10,2)");
+            builder.Property(er => er.Score).IsRequired(false);
             builder.Property(er => er.StartDate).IsRequired();
-            builder.Property(er => er.CompletionDate);
-            builder.Property(er => er.Duration);
+            builder.Property(er => er.CompletionDate).IsRequired(false);
+            builder.Property(er => er.Duration).IsRequired(false);
             builder.Property(er => er.TotalQuestions).IsRequired();
-            builder.Property(er => er.CorrectAnswers);
-            builder.Property(er => er.IncorrectAnswers);
+            builder.Property(er => er.CorrectAnswers).IsRequired(false);
+            builder.Property(er => er.IncorrectAnswers).IsRequired(false);
 
             builder.HasOne(er => er.User)
                 .WithMany()

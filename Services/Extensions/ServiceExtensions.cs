@@ -17,6 +17,7 @@ namespace ExamApp.Services.Extensions
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IExamResultService, ExamResultService>();
+            services.AddScoped(sp => new Lazy<IExamResultService>(() => sp.GetRequiredService<IExamResultService>()));
             services.AddHostedService<ExamExpirationBackgroundService>();
 
 

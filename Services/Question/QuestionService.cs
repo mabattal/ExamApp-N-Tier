@@ -87,6 +87,11 @@ namespace ExamApp.Services.Question
         public async Task<ServiceResult<List<QuestionResponseDto>>> GetByExamIdAsync(int examId)
         {
             var questions = await questionRepository.GetByExamId(examId).ToListAsync();
+            if (!questions.Any())
+            {
+                return ServiceResult<List<QuestionResponseDto>>.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
+            }
+
             var questionsAsDto = questions.Select(q => new QuestionResponseDto(q.QuestionId, q.ExamId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD, q.CorrectAnswer)).ToList();
             return ServiceResult<List<QuestionResponseDto>>.Success(questionsAsDto);
         }

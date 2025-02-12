@@ -18,7 +18,7 @@ namespace ExamApp.Repositories.Configurations
             builder.HasOne(e => e.Instructor)
                 .WithMany()
                 .HasForeignKey(e => e.CreatedBy)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

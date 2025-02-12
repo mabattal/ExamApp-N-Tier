@@ -8,7 +8,7 @@ using ExamApp.Services.ExamResult;
 
 namespace ExamApp.Services.Answer
 {
-    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, IExamResultService examResultService, IExamService examService, IUnitOfWork _unitOfWork) : IAnswerService
+    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork _unitOfWork) : IAnswerService
     {
         public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest)
         {
@@ -18,7 +18,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail(exam.ErrorMessage, exam.Status);
             }
 
-            var examResult = await examResultService.GetByUserIdAndExamId(createAnswerRequest.UserId, createAnswerRequest.ExamId);
+            var examResult = await examResultService.Value.GetByUserIdAndExamId(createAnswerRequest.UserId, createAnswerRequest.ExamId);
             if (examResult.IsFail)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
@@ -69,7 +69,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail("Exam not found", HttpStatusCode.NotFound);
             }
 
-            var examResult = await examResultService.GetByUserIdAndExamId(request.UserId, request.ExamId);
+            var examResult = await examResultService.Value.GetByUserIdAndExamId(request.UserId, request.ExamId);
             if (examResult.IsFail)
             {
                 return ServiceResult.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
@@ -142,6 +142,11 @@ namespace ExamApp.Services.Answer
         public async Task<ServiceResult<List<AnswerResponseDto>>> GetByUserAndExamAsync(int userId, int examId)
         {
             var answers = await answerRepository.GetByUserAndExam(userId, examId).ToListAsync();
+            if (!answers.Any())
+            {
+                return ServiceResult<List<AnswerResponseDto>>.Fail("Answers not found", HttpStatusCode.NotFound);
+            }
+
             var answerAsDto = answers.Select(a => new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer, a.IsCorrect)).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
         }

@@ -4,9 +4,9 @@
     {
         public int ResultId { get; set; }
         public int UserId { get; set; }
-        public User? User { get; set; }
+        public User User { get; set; }
         public int ExamId { get; set; }
-        public Exam? Exam { get; set; }
+        public Exam Exam { get; set; }
         public double? Score { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? CompletionDate { get; set; }
