@@ -1,4 +1,4 @@
 ﻿namespace ExamApp.Services.ExamResult
 {
-    public record ExamResultAverageScoreResponseDto(double Score);
+    public record ExamResultAverageScoreResponseDto(decimal Score);
 }

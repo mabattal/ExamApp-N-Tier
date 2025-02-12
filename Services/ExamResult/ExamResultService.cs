@@ -84,19 +84,33 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam result is not found.", HttpStatusCode.NotFound);
             }
 
+            if (existingResult.Score != null && existingResult.CompletionDate != null &&
+                existingResult.CorrectAnswers != null && existingResult.IncorrectAnswers != null &&
+                existingResult.Duration != null)
+            {
+                return ServiceResult.Fail("Exam has already been submitted.", HttpStatusCode.BadRequest);
+            }
+
             var questions = await questionService.GetByExamIdAsync(examId);
             if (questions.IsFail)
             {
                 return ServiceResult.Fail(questions.ErrorMessage, questions.Status);
             }
 
+            // Hiç cevap oluşturulmadan sınav bitirilmek istenirse
+            var correctAnswers = 0;
+            var incorrectAnswers = 0;
+            decimal score = 0;
             var answers = await answerService.GetByUserAndExamAsync(userId, examId);
-            var correctAnswers = answers.Data.Count(a => a.IsCorrect);
-            var totalQuestions = questions.Data.Count;
-            var incorrectAnswers = totalQuestions - correctAnswers;
-            var score = (correctAnswers / (double)totalQuestions) * 100;
+            if(answers.IsSuccess)
+            {
+                var totalQuestions = questions.Data.Count;
+                correctAnswers = answers.Data.Count(a => a.IsCorrect);
+                incorrectAnswers = totalQuestions - correctAnswers;
+                score = (correctAnswers / (decimal)totalQuestions) * 100;
+            }
             var duration = (int)(DateTime.Now - existingResult.StartDate).TotalMinutes;
-            
+
             existingResult.Score = score;
             existingResult.CompletionDate = DateTime.Now;
             existingResult.Duration = duration;
@@ -112,7 +126,9 @@ namespace ExamApp.Services.ExamResult
         public async Task<ServiceResult> AutoSubmitExpiredExamsAsync()
         {
             var expiredResults = await examResultRepository
-                .Where(x => x.CompletionDate == null && x.StartDate.AddMinutes(x.Exam.Duration) <= DateTime.Now)
+                .Where(x => x.CompletionDate == null &&
+                            (x.StartDate.AddMinutes(x.Exam.Duration) <= DateTime.Now ||
+                             (x.StartDate.AddMinutes(x.Exam.Duration) > x.Exam.EndDate && x.Exam.EndDate <= DateTime.Now)))
                 .Include(x => x.Exam)
                 .ToListAsync();
 
@@ -154,7 +170,7 @@ namespace ExamApp.Services.ExamResult
             }
 
             var averageScore = examResultRepository.GetAverageScoreByExamAsync(examId);
-            
+
             return ServiceResult<ExamResultAverageScoreResponseDto>.Success(new ExamResultAverageScoreResponseDto(averageScore.Result));
         }
 

@@ -8,7 +8,7 @@ using ExamApp.Services.ExamResult;
 
 namespace ExamApp.Services.Answer
 {
-    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork _unitOfWork) : IAnswerService
+    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork unitOfWork) : IAnswerService
     {
         public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest)
         {
@@ -30,12 +30,23 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail(question.ErrorMessage, question.Status);
             }
 
+            if (question.Data.ExamId != createAnswerRequest.ExamId)
+            {
+                return ServiceResult<CreateAnswerResponseDto>.Fail("Question does not belong to the exam.", HttpStatusCode.BadRequest);
+            }
+
+            var existingAnswer = await answerRepository.GetByUserAndQuestion(createAnswerRequest.UserId, createAnswerRequest.QuestionId).SingleOrDefaultAsync();
+            if (existingAnswer != null)
+            {
+                return ServiceResult<CreateAnswerResponseDto>.Fail("Answer already exists", HttpStatusCode.BadRequest);
+            }
+
             if (exam.Data.StartDate > DateTime.Now)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            // Sınav bitiş zamanı hesapla: Kullanıcı için sınav süresi mi doldu, yoksa sınav zaten bitti mi?
+            // Kullanıcı için sınav süresi mi doldu, yoksa sınav zaten bitti mi?
             var examEndTime = examResult.Data.StartDate.AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
             if (DateTime.Now > finalExamEndTime)
@@ -56,44 +67,43 @@ namespace ExamApp.Services.Answer
                 IsCorrect = isCorrect
             };
             await answerRepository.AddAsync(answer);
-            await _unitOfWork.SaveChangeAsync();
+            await unitOfWork.SaveChangeAsync();
 
             return ServiceResult<CreateAnswerResponseDto>.Success(new CreateAnswerResponseDto(answer.AnswerId));
         }
 
         public async Task<ServiceResult> UpdateAsync(int id, UpdateAnswerRequestDto request)
         {
-            var exam = await examService.GetByIdAsync(request.ExamId);
-            if (exam is null)
-            {
-                return ServiceResult.Fail("Exam not found", HttpStatusCode.NotFound);
-            }
-
-            var examResult = await examResultService.Value.GetByUserIdAndExamId(request.UserId, request.ExamId);
-            if (examResult.IsFail)
-            {
-                return ServiceResult.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
-            }
-
-            //Fast fail(önce olumsuz durumları kontrol edip geri dönüş yap)
-            var answer = await answerRepository.GetByIdAsync(id);
+            var answer = await answerRepository.GetByIdWithDetailsAsync(id);
             if (answer is null)
             {
                 return ServiceResult.Fail("Answer not found", HttpStatusCode.NotFound);
             }
 
-            var question = await questionService.GetByIdAsync(request.QuestionId);
-            if (question.IsFail)
+            var exam = await examService.GetByIdAsync(answer.Question!.ExamId);
+            if (exam.IsFail)
             {
-                return ServiceResult.Fail(question.ErrorMessage, question.Status);
+                return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            if (exam.Data.StartDate > DateTime.Now)
+            var examResult = await examResultService.Value.GetByUserIdAndExamId(answer.UserId, answer.Question.ExamId);
+            if (examResult.IsFail)
+            {
+                return ServiceResult.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
+            }
+
+            var question = await questionService.GetByIdAsync(answer.QuestionId);
+            if (question.IsFail)
+            {
+                return ServiceResult.Fail(question.ErrorMessage!, question.Status);
+            }
+
+            if (exam.Data!.StartDate > DateTime.Now)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            var examEndTime = examResult.Data.StartDate.AddMinutes(exam.Data.Duration);
+            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
             if (DateTime.Now > finalExamEndTime)
             {
@@ -102,14 +112,14 @@ namespace ExamApp.Services.Answer
 
             //Cevap doğru ise true, yanlış ise false olacak şekilde kontrol edilir
             var isCorrect = !string.IsNullOrEmpty(request.SelectedAnswer) &&
-                            request.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+                            request.SelectedAnswer.Equals(question.Data!.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
             answer.SelectedAnswer = request.SelectedAnswer;
             answer.CreatedDate = DateTime.Now;
             answer.IsCorrect = isCorrect;
 
             answerRepository.Update(answer);
-            await _unitOfWork.SaveChangeAsync();
+            await unitOfWork.SaveChangeAsync();
 
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
@@ -135,7 +145,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail("Answer not found", HttpStatusCode.NotFound);
             }
             answerRepository.Delete(answer);
-            await _unitOfWork.SaveChangeAsync();
+            await unitOfWork.SaveChangeAsync();
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 

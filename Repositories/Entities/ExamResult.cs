@@ -7,7 +7,7 @@
         public User User { get; set; }
         public int ExamId { get; set; }
         public Exam Exam { get; set; }
-        public double? Score { get; set; }
+        public decimal? Score { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? CompletionDate { get; set; }
         public int? Duration { get; set; }

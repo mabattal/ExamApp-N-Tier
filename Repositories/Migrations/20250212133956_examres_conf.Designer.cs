@@ -4,6 +4,7 @@ using ExamApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExamApp.Repositories.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212133956_examres_conf")]
+    partial class examres_conf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,9 +118,9 @@ namespace ExamApp.Repositories.Migrations
                     b.Property<int?>("IncorrectAnswers")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Score")
+                    b.Property<double?>("Score")
                         .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("float(10)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");

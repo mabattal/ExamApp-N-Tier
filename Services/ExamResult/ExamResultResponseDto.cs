@@ -4,7 +4,7 @@
         int ResultId,
         int UserId,
         int ExamId,
-        double? Score,
+        decimal? Score,
         DateTime StartDate,
         DateTime? CompletionDate,
         int? Duration,

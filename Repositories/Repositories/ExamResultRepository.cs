@@ -5,10 +5,9 @@ namespace ExamApp.Repositories.Repositories
 {
     public class ExamResultRepository(AppDbContext context) : GenericRepository<ExamResult>(context), IExamResultRepository
     {
-        public Task<double> GetAverageScoreByExamAsync(int examId)
+        public Task<decimal> GetAverageScoreByExamAsync(int examId)
         {
-
-            return context.ExamResults.Where(er => er.ExamId == examId && er.Score != null).AverageAsync(er => (double)er.Score);
+            return context.ExamResults.Where(er => er.ExamId == examId && er.Score != null).AverageAsync(er => (decimal)er.Score);
         }
 
         public IQueryable<ExamResult> GetByUserId(int userId)

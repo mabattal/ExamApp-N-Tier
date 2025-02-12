@@ -9,7 +9,7 @@ namespace ExamApp.Repositories.Configurations
         public void Configure(EntityTypeBuilder<ExamResult> builder)
         {
             builder.HasKey(er => er.ResultId);
-            builder.Property(er => er.Score).IsRequired(false);
+            builder.Property(er => er.Score).HasPrecision(10, 2).IsRequired(false);
             builder.Property(er => er.StartDate).IsRequired();
             builder.Property(er => er.CompletionDate).IsRequired(false);
             builder.Property(er => er.Duration).IsRequired(false);
