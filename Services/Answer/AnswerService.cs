@@ -132,7 +132,7 @@ namespace ExamApp.Services.Answer
             {
                 return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
-            var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer, answer.IsCorrect);
+            var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer!, answer.IsCorrect);
 
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
@@ -157,7 +157,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<List<AnswerResponseDto>>.Fail("Answers not found", HttpStatusCode.NotFound);
             }
 
-            var answerAsDto = answers.Select(a => new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer, a.IsCorrect)).ToList();
+            var answerAsDto = answers.Select(a => new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer!, a.IsCorrect)).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
         }
 
