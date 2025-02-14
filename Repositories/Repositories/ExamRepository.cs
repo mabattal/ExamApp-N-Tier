@@ -12,7 +12,7 @@ namespace ExamApp.Repositories.Repositories
 
         public IQueryable<Exam> GetActiveExams()
         {
-            return context.Exams.Where(e => e.StartDate <= DateTime.Now && e.EndDate >= DateTime.Now).Include(e => e.Questions);
+            return context.Exams.Where(e => e.StartDate <= DateTime.Now && e.EndDate >= DateTime.Now).Include(e => e.Instructor);
         }
 
         public Task<Exam?> GetExamWithDetailsAsync(int examId)

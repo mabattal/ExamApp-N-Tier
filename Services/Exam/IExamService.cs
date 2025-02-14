@@ -5,9 +5,8 @@
         Task<ServiceResult<CreateExamResponseDto>> AddAsync(CreateExamRequestDto examRequest);
         Task<ServiceResult> UpdateAsync(int id, UpdateExamRequestDto examRequest);
         Task<ServiceResult> DeleteAsync(int id);
-        Task<ServiceResult<List<ExamResponseDto>>> GetByInstructorAsync(int instructorId);          // Eğitmene ait sınavları listelemek için
-        Task<ServiceResult<List<ExamResponseDto>>> GetActiveExamsAsync();                           // Şu an aktif olan sınavları getirmek için
-        Task<ServiceResult<ExamResponseDto?>> GetByIdAsync(int id);                                 // Id'ye göre sınav getirmek için
-        Task<ServiceResult<ExamWithDetailsResponseDto?>> GetExamWithDetailsAsync(int examId);       // Sorular ve eğitmen bilgisi ile sınav detaylarını getirmek için
+        Task<ServiceResult<List<ExamWithQuestionsResponseDto>>> GetByInstructorAsync(int instructorId);          // Eğitmene ait sınavları listelemek için
+        Task<ServiceResult<List<ExamWithInstructorResponseDto>>> GetActiveExamsAsync();                           // Şu an aktif olan sınavları getirmek için
+        Task<ServiceResult<ExamWithDetailsResponseDto?>> GetByIdAsync(int id);                                 // Id'ye göre sınav getirmek için
     }
 }

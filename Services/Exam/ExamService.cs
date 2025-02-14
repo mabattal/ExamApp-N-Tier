@@ -14,10 +14,10 @@ namespace ExamApp.Services.Exam
             var instructor = await userService.GetInstructorByIdAsync(examRequest.CreatedBy);
             if (instructor.IsFail)
             {
-                return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage, instructor.Status);
+                return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
-            if (examRequest.StartDate > examRequest.EndDate)
+            if (examRequest.StartDate >= examRequest.EndDate)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
             }
@@ -58,7 +58,7 @@ namespace ExamApp.Services.Exam
             var instructor = await userService.GetInstructorByIdAsync(examRequest.CreatedBy);
             if (instructor.IsFail)
             {
-                return ServiceResult.Fail(instructor.ErrorMessage, instructor.Status);
+                return ServiceResult.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
             if (exam.CreatedBy != examRequest.CreatedBy)
@@ -105,63 +105,62 @@ namespace ExamApp.Services.Exam
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
-        public async Task<ServiceResult<List<ExamResponseDto>>> GetByInstructorAsync(int instructorId)
+        public async Task<ServiceResult<List<ExamWithQuestionsResponseDto>>> GetByInstructorAsync(int instructorId)
         {
-            var exams = await examRepository.GetByInstructor(instructorId).Include(e => e.Questions).ToListAsync();
-            var examAsDto = exams.Select(e => new ExamResponseDto(
+            var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
+            var examAsDto = exams.Select(e => new ExamWithQuestionsResponseDto(
                 e.ExamId,
                 e.Title,
                 e.Description,
                 e.StartDate,
                 e.EndDate,
                 e.Duration,
-                e.CreatedBy
+                e.Questions.Select(q => new QuestionResponseDto(
+                    q.QuestionId,
+                    q.ExamId,
+                    q.QuestionText,
+                    q.OptionA,
+                    q.OptionB,
+                    q.OptionC,
+                    q.OptionD,
+                    q.CorrectAnswer
+                )).ToList()
             )).ToList();
-            return ServiceResult<List<ExamResponseDto>>.Success(examAsDto);
+            return ServiceResult<List<ExamWithQuestionsResponseDto>>.Success(examAsDto);
         }
 
-        public async Task<ServiceResult<List<ExamResponseDto>>> GetActiveExamsAsync()
+        public async Task<ServiceResult<List<ExamWithInstructorResponseDto>>> GetActiveExamsAsync()
         {
             var exams = await examRepository.GetActiveExams().ToListAsync();
-            var examAsDto = exams.Select(e => new ExamResponseDto(
+            if (!exams.Any())
+            {
+                return ServiceResult<List<ExamWithInstructorResponseDto>>.Fail("There is no active exam.", HttpStatusCode.NotFound);
+            }
+
+            var examAsDto = exams.Select(e => new ExamWithInstructorResponseDto(
                 e.ExamId,
                 e.Title,
                 e.Description,
                 e.StartDate,
                 e.EndDate,
                 e.Duration,
-                e.CreatedBy
+                new UserResponseDto(
+                    e.Instructor.UserId,
+                    e.Instructor.FullName,
+                    e.Instructor.Email,
+                    e.Instructor.Role,
+                    e.Instructor.IsDeleted)
             )).ToList();
-            return ServiceResult<List<ExamResponseDto>>.Success(examAsDto);
+            return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
         }
 
-        public async Task<ServiceResult<ExamResponseDto?>> GetByIdAsync(int id)
+        public async Task<ServiceResult<ExamWithDetailsResponseDto?>> GetByIdAsync(int id)
         {
-            var exam = await examRepository.GetByIdAsync(id);
+            var exam = await examRepository.GetExamWithDetailsAsync(id);
             if (exam is null)
             {
-                return ServiceResult<ExamResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
+                return ServiceResult<ExamWithDetailsResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
             }
-            var examAsDto = new ExamResponseDto(
-                exam.ExamId,
-                exam.Title,
-                exam.Description,
-                exam.StartDate,
-                exam.EndDate,
-                exam.Duration,
-                exam.CreatedBy
-            );
-            return ServiceResult<ExamResponseDto?>.Success(examAsDto);
-        }
-
-        public async Task<ServiceResult<ExamWithDetailsResponseDto?>> GetExamWithDetailsAsync(int examId)
-        {
-            var exam = await examRepository.GetExamWithDetailsAsync(examId);
-            if (exam is null)
-            {
-                return ServiceResult<ExamWithDetailsResponseDto?>.Fail($"Exam with ID {examId} not found.", HttpStatusCode.NotFound);
-            }
-
             var examAsDto = new ExamWithDetailsResponseDto(
                 exam.ExamId,
                 exam.Title,
@@ -186,8 +185,7 @@ namespace ExamApp.Services.Exam
                     q.CorrectAnswer
                 )).ToList()
             );
-
-            return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto!);
+            return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto);
         }
     }
 }

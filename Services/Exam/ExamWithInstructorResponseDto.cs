@@ -1,13 +1,15 @@
-﻿namespace ExamApp.Services.Exam
+﻿using ExamApp.Services.User;
+
+namespace ExamApp.Services.Exam
 {
-    public record ExamResponseDto(
+    public record ExamWithInstructorResponseDto(
         int ExamId,
         string Title,
         string Description,
         DateTime StartDate,
         DateTime EndDate,
         int Duration,
-        int CreatedBy
+        UserResponseDto Instructors
     );
 }
 

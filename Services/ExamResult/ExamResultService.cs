@@ -152,7 +152,7 @@ namespace ExamApp.Services.ExamResult
         public async Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId)
         {
 
-            var examResults = await examResultRepository.Where(x => x.UserId == userId).ToListAsync();
+            var examResults = await examResultRepository.GetByUserId(userId).ToListAsync();
             if (!examResults.Any())
             {
                 return ServiceResult<List<ExamResultResponseDto>>.Fail("No exam results found.", HttpStatusCode.NotFound);

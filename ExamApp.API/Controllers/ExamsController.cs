@@ -20,9 +20,9 @@ namespace ExamApp.API.Controllers
         }
 
         [HttpGet("{examId}")]
-        public async Task<IActionResult> GetExamWithDetails(int examId)
+        public async Task<IActionResult> GetById(int examId)
         {
-            var result = await _examService.GetExamWithDetailsAsync(examId);
+            var result = await _examService.GetByIdAsync(examId);
             return CreateActionResult(result);
         }
 
