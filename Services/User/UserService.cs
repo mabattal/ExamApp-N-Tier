@@ -64,6 +64,11 @@ namespace ExamApp.Services.User
 
         public async Task<ServiceResult<CreateUserResponseDto>> AddAsync(CreateUserRequestDto createUserRequest)
         {
+            var existingUser = await userRepository.Where(u => u.Email == createUserRequest.Email).FirstOrDefaultAsync();
+            if (existingUser is not null) {
+                return ServiceResult<CreateUserResponseDto>.Fail("User already exists", HttpStatusCode.BadRequest);
+            }
+
             var user = new Repositories.Entities.User()
             {
                 FullName = createUserRequest.FullName,
@@ -84,6 +89,13 @@ namespace ExamApp.Services.User
             {
                 return ServiceResult.Fail("User not found", HttpStatusCode.NotFound);
             }
+
+            var existingUser = await userRepository.Where(u => u.Email == updateUserRequest.Email && u.UserId != id).FirstOrDefaultAsync();
+            if (existingUser is not null)
+            {
+                return ServiceResult.Fail("Email address already exists", HttpStatusCode.BadRequest);
+            }
+
             user.FullName = updateUserRequest.FullName;
             user.Email = updateUserRequest.Email;
             user.PasswordHash = updateUserRequest.PasswordHash;
