@@ -29,6 +29,12 @@ namespace ExamApp.Services.Question
                 return ServiceResult<CreateQuestionResponseDto>.Fail(exam.ErrorMessage, exam.Status)!;
             }
 
+            var questionResult = await questionRepository.Where(x => x.ExamId == createQuestionRequest.ExamId && x.QuestionText == createQuestionRequest.QuestionText).FirstOrDefaultAsync();
+            if (questionResult is not null)
+            {
+                return ServiceResult<CreateQuestionResponseDto>.Fail("Question already exists in this exam.", HttpStatusCode.BadRequest)!;
+            }
+
             var question = new Repositories.Entities.Question()
             {
                 ExamId = createQuestionRequest.ExamId,

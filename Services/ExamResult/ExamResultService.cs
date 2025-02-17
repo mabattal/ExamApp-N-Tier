@@ -58,6 +58,11 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
+            if(exam.Data.EndDate < DateTime.Now)
+            {
+                return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
+            }
+
             var examResult = new Repositories.Entities.ExamResult()
             {
                 UserId = userId,
@@ -67,7 +72,7 @@ namespace ExamApp.Services.ExamResult
             };
             await examResultRepository.AddAsync(examResult);
             await unitOfWork.SaveChangeAsync();
-            return ServiceResult.Success();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
         public async Task<ServiceResult> SubmitExamAsync(int examId, int userId)
@@ -120,7 +125,7 @@ namespace ExamApp.Services.ExamResult
             examResultRepository.Update(existingResult);
             await unitOfWork.SaveChangeAsync();
 
-            return ServiceResult.Success();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
         public async Task<ServiceResult> AutoSubmitExpiredExamsAsync()
