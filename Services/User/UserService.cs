@@ -29,15 +29,26 @@ namespace ExamApp.Services.User
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
-        public async Task<ServiceResult<UserResponseDto?>> GetByIdAsync(int id)
+        public async Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(int? id, string? email)
         {
-            var user = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true).FirstOrDefaultAsync();
+            Repositories.Entities.User? user = null;
+
+            if (id is not null)
+            {
+                user = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true).FirstOrDefaultAsync();
+            }
+            else if (!string.IsNullOrEmpty(email))
+            {
+                user = await userRepository.Where(u => u.Email == email && u.IsDeleted != true).FirstOrDefaultAsync();
+            }
+
             if (user is null)
             {
-                return ServiceResult<UserResponseDto>.Fail("User not found", HttpStatusCode.NotFound)!;
+                return ServiceResult<UserResponseDto?>.Fail("User not found.", HttpStatusCode.NotFound);
             }
-            var userAsDto = new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
-            return ServiceResult<UserResponseDto>.Success(userAsDto)!;
+
+            var userDto = new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
+            return ServiceResult<UserResponseDto?>.Success(userDto);
         }
 
         public async Task<ServiceResult<UserResponseDto?>> GetInstructorByIdAsync(int id)
@@ -97,17 +108,6 @@ namespace ExamApp.Services.User
             await unitOfWork.SaveChangeAsync();
 
             return ServiceResult.Success(HttpStatusCode.NoContent);
-        }
-
-        public async Task<ServiceResult<UserResponseDto?>> GetByEmailAsync(string email)
-        {
-            var user = await userRepository.Where(u => u.Email == email && u.IsDeleted != true).FirstOrDefaultAsync();
-            if (user is null)
-            {
-                return ServiceResult<UserResponseDto>.Fail("User not found", HttpStatusCode.NotFound)!;
-            }
-            var userAsDto = new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
-            return ServiceResult<UserResponseDto>.Success(userAsDto)!;
         }
 
         public async Task<ServiceResult<List<UserResponseDto>>> GetByRole(UserRole role)

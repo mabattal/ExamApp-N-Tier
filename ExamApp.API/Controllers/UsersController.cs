@@ -24,11 +24,19 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{value}")]
+        public async Task<IActionResult> GetByIdOrEmail(string value)
         {
-            var result = await _userService.GetByIdAsync(id);
-            return CreateActionResult(result);
+            if (int.TryParse(value, out int id))
+            {
+                var result = await _userService.GetByIdOrEmailAsync(id, null);
+                return CreateActionResult(result);
+            }
+            else
+            {
+                var result = await _userService.GetByIdOrEmailAsync(null, value);
+                return CreateActionResult(result);
+            }
         }
 
         [HttpPost]
@@ -49,13 +57,6 @@ namespace ExamApp.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _userService.DeleteAsync(id);
-            return CreateActionResult(result);
-        }
-
-        [HttpGet("email/{email}")]
-        public async Task<IActionResult> GetByEmail(string email)
-        {
-            var result = await _userService.GetByEmailAsync(email);
             return CreateActionResult(result);
         }
 
