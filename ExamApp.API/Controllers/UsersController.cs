@@ -17,14 +17,14 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpGet("{pageNumber}/{pageSize}")]
+        [HttpGet("{pageNumber:int}/{pageSize:int}")]
         public async Task<IActionResult> GetPagedAll(int pageNumber, int pageSize)
         {
             var result = await _userService.GetPagedAllAsync(pageNumber, pageSize);
             return CreateActionResult(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _userService.GetByIdAsync(id);
@@ -38,14 +38,14 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateUserRequestDto updateUserRequest)
         {
             var result = await _userService.UpdateAsync(id, updateUserRequest);
             return CreateActionResult(result);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _userService.DeleteAsync(id);
@@ -59,7 +59,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpGet("role/{role}")]
+        [HttpGet("role/{role:int}")]
         public async Task<IActionResult> GetByRole(UserRole role)
         {
             var result = await _userService.GetByRole(role);

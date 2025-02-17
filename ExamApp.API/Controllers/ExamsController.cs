@@ -5,7 +5,7 @@ namespace ExamApp.API.Controllers
 {
     public class ExamsController(IExamService _examService) : CustomBaseController
     {
-        [HttpGet("instructor/{instructorId}")]
+        [HttpGet("instructor/{instructorId:int}")]
         public async Task<IActionResult> GetByInstructor(int instructorId)
         {
             var result = await _examService.GetByInstructorAsync(instructorId);
@@ -19,7 +19,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpGet("{examId}")]
+        [HttpGet("{examId:int}")]
         public async Task<IActionResult> GetById(int examId)
         {
             var result = await _examService.GetByIdAsync(examId);
@@ -33,14 +33,14 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [HttpPut("{examId}")]
+        [HttpPut("{examId:int}")]
         public async Task<IActionResult> Update(int examId, UpdateExamRequestDto updateExamRequest)
         {
             var result = await _examService.UpdateAsync(examId, updateExamRequest);
             return CreateActionResult(result);
         }
 
-        [HttpDelete("{examId}")]
+        [HttpDelete("{examId:int}")]
         public async Task<IActionResult> Delete(int examId)
         {
             var result = await _examService.DeleteAsync(examId);
