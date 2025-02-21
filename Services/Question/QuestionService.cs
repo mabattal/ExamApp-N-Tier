@@ -26,11 +26,11 @@ namespace ExamApp.Services.Question
             var exam = await examService.GetByIdAsync(createQuestionRequest.ExamId);
             if (exam.IsFail)
             {
-                return ServiceResult<CreateQuestionResponseDto>.Fail(exam.ErrorMessage, exam.Status)!;
+                return ServiceResult<CreateQuestionResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            var questionResult = await questionRepository.Where(x => x.ExamId == createQuestionRequest.ExamId && x.QuestionText == createQuestionRequest.QuestionText).FirstOrDefaultAsync();
-            if (questionResult is not null)
+            var questionResult = await questionRepository.Where(x => x.ExamId == createQuestionRequest.ExamId && x.QuestionText == createQuestionRequest.QuestionText).AnyAsync();
+            if (questionResult)
             {
                 return ServiceResult<CreateQuestionResponseDto>.Fail("Question already exists in this exam.", HttpStatusCode.BadRequest)!;
             }
@@ -63,7 +63,7 @@ namespace ExamApp.Services.Question
             var exam = await examService.GetByIdAsync(updateQuestionRequest.ExamId);
             if (exam.IsFail)
             {
-                return ServiceResult.Fail(exam.ErrorMessage, exam.Status)!;
+                return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
             question.QuestionText = updateQuestionRequest.QuestionText;

@@ -15,7 +15,7 @@ namespace ExamApp.Services.Answer
             var exam = await examService.GetByIdAsync(createAnswerRequest.ExamId);
             if (exam.IsFail)
             {
-                return ServiceResult<CreateAnswerResponseDto>.Fail(exam.ErrorMessage, exam.Status);
+                return ServiceResult<CreateAnswerResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
             var examResult = await examResultService.Value.GetByUserIdAndExamId(createAnswerRequest.UserId, createAnswerRequest.ExamId);
@@ -27,27 +27,27 @@ namespace ExamApp.Services.Answer
             var question = await questionService.GetByIdAsync(createAnswerRequest.QuestionId);
             if (question.IsFail)
             {
-                return ServiceResult<CreateAnswerResponseDto>.Fail(question.ErrorMessage, question.Status);
+                return ServiceResult<CreateAnswerResponseDto>.Fail(question.ErrorMessage!, question.Status);
             }
 
-            if (question.Data.ExamId != createAnswerRequest.ExamId)
+            if (question.Data!.ExamId != createAnswerRequest.ExamId)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Question does not belong to the exam.", HttpStatusCode.BadRequest);
             }
 
-            var existingAnswer = await answerRepository.GetByUserAndQuestion(createAnswerRequest.UserId, createAnswerRequest.QuestionId).SingleOrDefaultAsync();
-            if (existingAnswer != null)
+            var existingAnswer = await answerRepository.GetByUserAndQuestion(createAnswerRequest.UserId, createAnswerRequest.QuestionId).AnyAsync();
+            if (existingAnswer)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Answer already exists", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTime.Now)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
             // Kullanıcı için sınav süresi mi doldu, yoksa sınav zaten bitti mi?
-            var examEndTime = examResult.Data.StartDate.AddMinutes(exam.Data.Duration);
+            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
             if (DateTime.Now > finalExamEndTime)
             {

@@ -47,13 +47,13 @@ namespace ExamApp.Services.ExamResult
             }
 
             // Check if the exam has already been started by the user
-            var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).SingleOrDefaultAsync();
-            if (existingResult is not null)
+            var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
+            if (existingResult)
             {
                 return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTime.Now)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
@@ -68,7 +68,7 @@ namespace ExamApp.Services.ExamResult
                 UserId = userId,
                 ExamId = examId,
                 StartDate = DateTime.Now,
-                TotalQuestions = questions.Data.Count
+                TotalQuestions = questions.Data!.Count
             };
             await examResultRepository.AddAsync(examResult);
             await unitOfWork.SaveChangeAsync();
@@ -99,7 +99,7 @@ namespace ExamApp.Services.ExamResult
             var questions = await questionService.GetByExamIdAsync(examId);
             if (questions.IsFail)
             {
-                return ServiceResult.Fail(questions.ErrorMessage, questions.Status);
+                return ServiceResult.Fail(questions.ErrorMessage!, questions.Status);
             }
 
             // Hiç cevap oluşturulmadan sınav bitirilmek istenirse
@@ -109,8 +109,8 @@ namespace ExamApp.Services.ExamResult
             var answers = await answerService.GetByUserAndExamAsync(userId, examId);
             if(answers.IsSuccess)
             {
-                var totalQuestions = questions.Data.Count;
-                correctAnswers = answers.Data.Count(a => a.IsCorrect);
+                var totalQuestions = questions.Data!.Count;
+                correctAnswers = answers.Data!.Count(a => a.IsCorrect);
                 incorrectAnswers = totalQuestions - correctAnswers;
                 score = (correctAnswers / (decimal)totalQuestions) * 100;
             }
@@ -156,7 +156,6 @@ namespace ExamApp.Services.ExamResult
 
         public async Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId)
         {
-
             var examResults = await examResultRepository.GetByUserId(userId).ToListAsync();
             if (!examResults.Any())
             {
@@ -168,8 +167,8 @@ namespace ExamApp.Services.ExamResult
 
         public async Task<ServiceResult<ExamResultAverageScoreResponseDto>> GetAverageScoreByExamAsync(int examId)
         {
-            var examResults = await examResultRepository.Where(x => x.ExamId == examId).ToListAsync();
-            if (!examResults.Any())
+            var examResults = await examResultRepository.Where(x => x.ExamId == examId).AnyAsync();
+            if (!examResults)
             {
                 return ServiceResult<ExamResultAverageScoreResponseDto>.Fail("No exam results found.", HttpStatusCode.NotFound);
             }
