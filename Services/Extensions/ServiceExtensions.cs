@@ -1,8 +1,11 @@
-﻿using ExamApp.Services.Answer;
+﻿using System.Reflection;
+using ExamApp.Services.Answer;
 using ExamApp.Services.Exam;
 using ExamApp.Services.ExamResult;
 using ExamApp.Services.Question;
 using ExamApp.Services.User;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +22,9 @@ namespace ExamApp.Services.Extensions
             services.AddScoped<IExamResultService, ExamResultService>();
             services.AddScoped(sp => new Lazy<IExamResultService>(() => sp.GetRequiredService<IExamResultService>()));
             services.AddHostedService<ExamExpirationBackgroundService>();
+
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 
             return services;
