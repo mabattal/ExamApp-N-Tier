@@ -6,7 +6,7 @@ namespace ExamApp.Services.User
     {
         Task<ServiceResult<List<UserResponseDto>>> GetAllAsync();
         Task<ServiceResult<List<UserResponseDto>>> GetPagedAllAsync(int pageNumber, int pageSize);
-        Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(int? id, string? email);
+        Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(string value);
         Task<ServiceResult<UserResponseDto?>> GetInstructorByIdAsync(int id);
         Task<ServiceResult<CreateUserResponseDto>> AddAsync(CreateUserRequestDto createUserRequest);
         Task<ServiceResult> UpdateAsync(int id, UpdateUserRequestDto updateUserRequest);

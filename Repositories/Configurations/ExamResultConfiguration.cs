@@ -16,6 +16,7 @@ namespace ExamApp.Repositories.Configurations
             builder.Property(er => er.TotalQuestions).IsRequired();
             builder.Property(er => er.CorrectAnswers).IsRequired(false);
             builder.Property(er => er.IncorrectAnswers).IsRequired(false);
+            builder.Property(er => er.EmptyAnswers).IsRequired(false);
 
             builder.HasOne(er => er.User)
                 .WithMany()

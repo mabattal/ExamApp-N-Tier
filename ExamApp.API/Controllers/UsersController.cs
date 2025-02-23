@@ -27,16 +27,8 @@ namespace ExamApp.API.Controllers
         [HttpGet("{value}")]
         public async Task<IActionResult> GetByIdOrEmail(string value)
         {
-            if (int.TryParse(value, out int id))
-            {
-                var result = await _userService.GetByIdOrEmailAsync(id, null);
-                return CreateActionResult(result);
-            }
-            else
-            {
-                var result = await _userService.GetByIdOrEmailAsync(null, value);
-                return CreateActionResult(result);
-            }
+            var result = await _userService.GetByIdOrEmailAsync(value);
+            return CreateActionResult(result);
         }
 
         [HttpPost]

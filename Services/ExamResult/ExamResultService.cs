@@ -5,10 +5,11 @@ using System.Net;
 using ExamApp.Services.Answer;
 using ExamApp.Services.Exam;
 using ExamApp.Services.Question;
+using ExamApp.Services.User;
 
 namespace ExamApp.Services.ExamResult
 {
-    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionService questionService, IAnswerService answerService, IExamService examService, IUnitOfWork unitOfWork) : IExamResultService
+    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionService questionService, IAnswerService answerService, IExamService examService, IUserService userService, IUnitOfWork unitOfWork) : IExamResultService
     {
         public async Task<ServiceResult<ExamResultResponseDto?>> GetByIdAsync(int id)
         {
@@ -159,6 +160,12 @@ namespace ExamApp.Services.ExamResult
 
         public async Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId)
         {
+            var user = await userService.GetByIdOrEmailAsync(userId.ToString());
+            if (user.IsFail)
+            {
+                return ServiceResult<List<ExamResultResponseDto>>.Fail(user.ErrorMessage!, user.Status);
+            }
+
             var examResults = await examResultRepository.GetByUserId(userId).ToListAsync();
             if (!examResults.Any())
             {

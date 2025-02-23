@@ -29,22 +29,25 @@ namespace ExamApp.Services.User
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
-        public async Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(int? id, string? email)
+        public async Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(string value)
         {
             Repositories.Entities.User? user = null;
 
-            if (id is not null)
+            if (int.TryParse(value, out int id))
             {
-                user = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true).FirstOrDefaultAsync();
+                user = await userRepository.Where(u => u.UserId == id).FirstOrDefaultAsync();
+                if (user is null)
+                {
+                    return ServiceResult<UserResponseDto?>.Fail("User not found.", HttpStatusCode.NotFound);
+                }
             }
-            else if (!string.IsNullOrEmpty(email))
+            else
             {
-                user = await userRepository.Where(u => u.Email == email && u.IsDeleted != true).FirstOrDefaultAsync();
-            }
-
-            if (user is null)
-            {
-                return ServiceResult<UserResponseDto?>.Fail("User not found.", HttpStatusCode.NotFound);
+                user = await userRepository.Where(u => u.Email == value).FirstOrDefaultAsync();
+                if (user is null)
+                {
+                    return ServiceResult<UserResponseDto?>.Fail("User not found.", HttpStatusCode.NotFound);
+                }
             }
 
             var userDto = new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
