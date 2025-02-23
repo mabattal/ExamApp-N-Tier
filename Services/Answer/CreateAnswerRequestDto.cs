@@ -1,4 +1,9 @@
 ﻿namespace ExamApp.Services.Answer
 {
-    public record CreateAnswerRequestDto(int UserId, int ExamId, int QuestionId, string SelectedAnswer);
+    public record CreateAnswerRequestDto(
+        int UserId, 
+        int ExamId, 
+        int QuestionId, 
+        string SelectedAnswer
+        );
 }

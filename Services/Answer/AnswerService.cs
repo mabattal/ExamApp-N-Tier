@@ -54,9 +54,11 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam time is up! You cannot submit answers.", HttpStatusCode.BadRequest);
             }
 
-            // `Cevap doğru ise true, yanlış ise false olacak şekilde kontrol edilir`
-            var isCorrect = !string.IsNullOrEmpty(createAnswerRequest.SelectedAnswer) &&
-                            createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+            // `Cevap doğru ise true, yanlış ise false boş ise null olacak şekilde kontrol edilir`
+            bool? isCorrect = string.IsNullOrEmpty(createAnswerRequest.SelectedAnswer)
+                ? null
+                : createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+
 
             var answer = new Repositories.Entities.Answer()
             {

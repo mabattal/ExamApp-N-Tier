@@ -80,7 +80,7 @@ namespace ExamApp.Services.ExamResult
             var exam = await examService.GetByIdAsync(examId);
             if (exam.IsFail)
             {
-                return ServiceResult.Fail(exam.ErrorMessage, exam.Status);
+                return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).SingleOrDefaultAsync();
@@ -102,16 +102,18 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail(questions.ErrorMessage!, questions.Status);
             }
 
+            var totalQuestions = questions.Data!.Count;
             // Hiç cevap oluşturulmadan sınav bitirilmek istenirse
             var correctAnswers = 0;
             var incorrectAnswers = 0;
+            var emptyAnswers = totalQuestions;
             decimal score = 0;
             var answers = await answerService.GetByUserAndExamAsync(userId, examId);
             if(answers.IsSuccess)
             {
-                var totalQuestions = questions.Data!.Count;
-                correctAnswers = answers.Data!.Count(a => a.IsCorrect);
-                incorrectAnswers = totalQuestions - correctAnswers;
+                correctAnswers = answers.Data!.Count(a => a.IsCorrect == true);
+                incorrectAnswers = answers.Data!.Count(a => a.IsCorrect == false);
+                emptyAnswers = totalQuestions - (correctAnswers + incorrectAnswers);
                 score = (correctAnswers / (decimal)totalQuestions) * 100;
             }
             var duration = (int)(DateTime.Now - existingResult.StartDate).TotalMinutes;
@@ -121,6 +123,7 @@ namespace ExamApp.Services.ExamResult
             existingResult.Duration = duration;
             existingResult.CorrectAnswers = correctAnswers;
             existingResult.IncorrectAnswers = incorrectAnswers;
+            existingResult.EmptyAnswers = emptyAnswers;
 
             examResultRepository.Update(existingResult);
             await unitOfWork.SaveChangeAsync();
