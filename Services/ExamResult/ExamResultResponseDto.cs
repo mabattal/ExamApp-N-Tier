@@ -10,6 +10,7 @@
         int? Duration,
         int TotalQuestions,
         int? CorrectAnswers,
-        int? IncorrectAnswers
+        int? IncorrectAnswers,
+        int? EmptyAnswers
     );
 }

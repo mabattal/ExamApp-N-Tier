@@ -6,6 +6,6 @@ namespace ExamApp.Services.User
         string FullName,
         string Email,
         UserRole Role,
-        string PasswordHash
+        string Password
         );
 }

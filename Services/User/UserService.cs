@@ -73,7 +73,7 @@ namespace ExamApp.Services.User
             {
                 FullName = createUserRequest.FullName,
                 Email = createUserRequest.Email,
-                PasswordHash = createUserRequest.PasswordHash,
+                Password = createUserRequest.Password,
                 Role = createUserRequest.Role,
                 IsDeleted = false
             };
@@ -98,7 +98,7 @@ namespace ExamApp.Services.User
 
             user.FullName = updateUserRequest.FullName;
             user.Email = updateUserRequest.Email;
-            user.PasswordHash = updateUserRequest.PasswordHash;
+            user.Password = updateUserRequest.Password;
             user.Role = updateUserRequest.Role;
 
             userRepository.Update(user);

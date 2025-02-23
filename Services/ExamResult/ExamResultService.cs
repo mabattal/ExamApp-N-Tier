@@ -17,7 +17,7 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers);
+            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -28,7 +28,7 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers);
+            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -164,7 +164,7 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<List<ExamResultResponseDto>>.Fail("No exam results found.", HttpStatusCode.NotFound);
             }
-            var examResultsAsDto = examResults.Select(x => new ExamResultResponseDto(x.ResultId, x.UserId, x.ExamId, x.Score, x.StartDate, x.CompletionDate, x.Duration, x.TotalQuestions, x.CorrectAnswers, x.IncorrectAnswers)).ToList();
+            var examResultsAsDto = examResults.Select(x => new ExamResultResponseDto(x.ResultId, x.UserId, x.ExamId, x.Score, x.StartDate, x.CompletionDate, x.Duration, x.TotalQuestions, x.CorrectAnswers, x.IncorrectAnswers, x.EmptyAnswers)).ToList();
             return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);
         }
 
