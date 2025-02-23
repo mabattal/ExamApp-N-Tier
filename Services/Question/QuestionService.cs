@@ -96,22 +96,22 @@ namespace ExamApp.Services.Question
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
-        public async Task<ServiceResult<List<QuestionResponseDto>>> GetByExamIdAsync(int examId)
+        public async Task<ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>> GetByExamIdAsync(int examId)
         {
             var exam = await examService.GetByIdAsync(examId);
             if (exam.IsFail)
             {
-                return ServiceResult<List<QuestionResponseDto>>.Fail(exam.ErrorMessage!, exam.Status);
+                return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
             var questions = await questionRepository.GetByExamId(examId).ToListAsync();
             if (!questions.Any())
             {
-                return ServiceResult<List<QuestionResponseDto>>.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
+                return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
             }
 
-            var questionsAsDto = questions.Select(q => new QuestionResponseDto(q.QuestionId, q.ExamId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD, q.CorrectAnswer)).ToList();
-            return ServiceResult<List<QuestionResponseDto>>.Success(questionsAsDto);
+            var questionsAsDto = questions.Select(q => new QuestionResponseWithoutCorrectAnswerDto(q.QuestionId, q.ExamId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD)).ToList();
+            return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Success(questionsAsDto);
         }
     }
 }
