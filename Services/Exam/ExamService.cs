@@ -39,7 +39,8 @@ namespace ExamApp.Services.Exam
                 StartDate = examRequest.StartDate,
                 EndDate = examRequest.EndDate,
                 Duration = examRequest.Duration,
-                CreatedBy = examRequest.CreatedBy
+                CreatedBy = examRequest.CreatedBy,
+                IsDeleted = false
             };
             await examRepository.AddAsync(exam);
             await unitOfWork.SaveChangeAsync();
@@ -100,13 +101,21 @@ namespace ExamApp.Services.Exam
             {
                 return ServiceResult.Fail("Exam not found", HttpStatusCode.NotFound);
             }
-            examRepository.Delete(exam);
+            exam.IsDeleted = true;
+
+            examRepository.Update(exam);
             await unitOfWork.SaveChangeAsync();
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
         public async Task<ServiceResult<List<ExamWithQuestionsResponseDto>>> GetByInstructorAsync(int instructorId)
         {
+            var instructor = await userService.GetInstructorByIdAsync(instructorId);
+            if(instructor.IsFail)
+            {
+                return ServiceResult<List<ExamWithQuestionsResponseDto>>.Fail(instructor.ErrorMessage!, instructor.Status);
+            }
+
             var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
             var examAsDto = exams.Select(e => new ExamWithQuestionsResponseDto(
                 e.ExamId,

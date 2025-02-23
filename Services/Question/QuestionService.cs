@@ -16,6 +16,12 @@ namespace ExamApp.Services.Question
                 return ServiceResult<QuestionResponseDto>.Fail("Question not found", HttpStatusCode.NotFound)!;
             }
 
+            var exam = await examService.GetByIdAsync(question.ExamId);
+            if (exam.IsFail)
+            {
+                return ServiceResult<QuestionResponseDto>.Fail("The exam of the question has been deleted", HttpStatusCode.BadRequest)!;
+            }
+
             var questionAsDto = new QuestionResponseDto(question.QuestionId, question.ExamId, question.QuestionText, question.OptionA, question.OptionB, question.OptionC, question.OptionD, question.CorrectAnswer);
 
             return ServiceResult<QuestionResponseDto>.Success(questionAsDto)!;
@@ -92,6 +98,12 @@ namespace ExamApp.Services.Question
 
         public async Task<ServiceResult<List<QuestionResponseDto>>> GetByExamIdAsync(int examId)
         {
+            var exam = await examService.GetByIdAsync(examId);
+            if (exam.IsFail)
+            {
+                return ServiceResult<List<QuestionResponseDto>>.Fail(exam.ErrorMessage!, exam.Status);
+            }
+
             var questions = await questionRepository.GetByExamId(examId).ToListAsync();
             if (!questions.Any())
             {

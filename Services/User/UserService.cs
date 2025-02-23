@@ -56,7 +56,7 @@ namespace ExamApp.Services.User
 
         public async Task<ServiceResult<UserResponseDto?>> GetInstructorByIdAsync(int id)
         {
-            var instructor = await userRepository.Where(u => u.UserId == id && u.IsDeleted != true && u.Role == UserRole.Instructor).SingleOrDefaultAsync();
+            var instructor = await userRepository.Where(u => u.UserId == id && u.Role == UserRole.Instructor).SingleOrDefaultAsync();
             if (instructor is null)
             {
                 return ServiceResult<UserResponseDto>.Fail("Instructor not found or not authorized.", HttpStatusCode.NotFound)!;

@@ -11,5 +11,6 @@
         public int CreatedBy { get; set; } // Eğitmen ID
         public User Instructor { get; set; }
         public ICollection<Question> Questions { get; set; } = new List<Question>();
+        public bool IsDeleted { get; set; } = false;
     }
 }

@@ -14,6 +14,7 @@ namespace ExamApp.Repositories.Configurations
             builder.Property(e => e.StartDate).IsRequired();
             builder.Property(e => e.EndDate).IsRequired();
             builder.Property(e => e.Duration).IsRequired();
+            builder.HasQueryFilter(e => !e.IsDeleted);
 
             builder.HasOne(e => e.Instructor)
                 .WithMany()

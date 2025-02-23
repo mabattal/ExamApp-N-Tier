@@ -4,6 +4,7 @@ using ExamApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExamApp.Repositories.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250223121938_addExamSoftDelete")]
+    partial class addExamSoftDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Exam", b =>
@@ -92,7 +95,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("Exams", (string)null);
+                    b.ToTable("Exams");
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.ExamResult", b =>
@@ -140,7 +143,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ExamResults", (string)null);
+                    b.ToTable("ExamResults");
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Question", b =>
@@ -188,7 +191,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasIndex("ExamId");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.User", b =>
@@ -220,7 +223,7 @@ namespace ExamApp.Repositories.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ExamApp.Repositories.Entities.Answer", b =>
