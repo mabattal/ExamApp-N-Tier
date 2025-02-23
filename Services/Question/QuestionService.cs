@@ -66,12 +66,6 @@ namespace ExamApp.Services.Question
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
             }
 
-            var exam = await examService.GetByIdAsync(updateQuestionRequest.ExamId);
-            if (exam.IsFail)
-            {
-                return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
-            }
-
             question.QuestionText = updateQuestionRequest.QuestionText;
             question.OptionA = updateQuestionRequest.OptionA;
             question.OptionB = updateQuestionRequest.OptionB;

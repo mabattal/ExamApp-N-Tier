@@ -7,13 +7,13 @@ namespace ExamApp.Services.Answer
         public CreateAnswerRequestValidator()
         {
             RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("UserId required.");
+                .GreaterThan(0).WithMessage("UserId required and must be greater than 0.");
 
             RuleFor(x => x.ExamId)
-                .NotEmpty().WithMessage("ExamId required.");
+                .GreaterThan(0).WithMessage("ExamId required and must be greater than 0.");
 
             RuleFor(x => x.QuestionId)
-                .NotEmpty().WithMessage("QuestionId required.");
+                .GreaterThan(0).WithMessage("QuestionId required and must be greater than 0.");
         }
     }
 }
