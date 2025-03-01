@@ -1,9 +1,9 @@
-﻿using System.Net;
-using ExamApp.Repositories;
+﻿using ExamApp.Repositories;
 using ExamApp.Repositories.Repositories;
 using ExamApp.Services.Question;
 using ExamApp.Services.User;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace ExamApp.Services.Exam
 {
@@ -17,27 +17,33 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
-            if (examRequest.StartDate >= examRequest.EndDate)
+            // Türkiye saat dilimini al
+            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.StartDate, DateTimeKind.Unspecified), turkeyTimeZone);
+            var endDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.EndDate, DateTimeKind.Unspecified), turkeyTimeZone);
+
+
+            if (startDateUtc >= endDateUtc)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.Duration > (examRequest.EndDate - examRequest.StartDate).TotalMinutes)
+            if (examRequest.Duration > (endDateUtc - startDateUtc).TotalMinutes)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
+            if (startDateUtc < DateTime.UtcNow || endDateUtc < DateTime.UtcNow)
             {
-                return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
+                return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current UTC date.", HttpStatusCode.BadRequest);
             }
 
             var exam = new Repositories.Entities.Exam()
             {
                 Title = examRequest.Title,
                 Description = examRequest.Description,
-                StartDate = examRequest.StartDate,
-                EndDate = examRequest.EndDate,
+                StartDate = startDateUtc,
+                EndDate = endDateUtc,
                 Duration = examRequest.Duration,
                 CreatedBy = examRequest.CreatedBy,
                 IsDeleted = false
@@ -67,25 +73,30 @@ namespace ExamApp.Services.Exam
                 return ServiceResult.Fail("You are not authorized to update this exam.", HttpStatusCode.Forbidden);
             }
 
-            if (examRequest.StartDate > examRequest.EndDate)
+            // Türkiye saat dilimini al
+            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.StartDate, DateTimeKind.Unspecified), turkeyTimeZone);
+            var endDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.EndDate, DateTimeKind.Unspecified), turkeyTimeZone);
+
+            if (startDateUtc >= endDateUtc)
             {
                 return ServiceResult.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.Duration > (examRequest.EndDate - examRequest.StartDate).TotalMinutes)
+            if (examRequest.Duration > (endDateUtc - startDateUtc).TotalMinutes)
             {
                 return ServiceResult.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
+            if (startDateUtc < DateTime.UtcNow || endDateUtc < DateTime.UtcNow)
             {
-                return ServiceResult.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Start date and end date must be greater than the current UTC date.", HttpStatusCode.BadRequest);
             }
 
             exam.Title = examRequest.Title;
             exam.Description = examRequest.Description;
-            exam.StartDate = examRequest.StartDate;
-            exam.EndDate = examRequest.EndDate;
+            exam.StartDate = startDateUtc;
+            exam.EndDate = endDateUtc;
             exam.Duration = examRequest.Duration;
 
             examRepository.Update(exam);
@@ -111,30 +122,38 @@ namespace ExamApp.Services.Exam
         public async Task<ServiceResult<List<ExamWithQuestionsResponseDto>>> GetByInstructorAsync(int instructorId)
         {
             var instructor = await userService.GetInstructorByIdAsync(instructorId);
-            if(instructor.IsFail)
+            if (instructor.IsFail)
             {
                 return ServiceResult<List<ExamWithQuestionsResponseDto>>.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
             var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
-            var examAsDto = exams.Select(e => new ExamWithQuestionsResponseDto(
-                e.ExamId,
-                e.Title,
-                e.Description,
-                e.StartDate,
-                e.EndDate,
-                e.Duration,
-                e.Questions.Select(q => new QuestionResponseDto(
-                    q.QuestionId,
-                    q.ExamId,
-                    q.QuestionText,
-                    q.OptionA,
-                    q.OptionB,
-                    q.OptionC,
-                    q.OptionD,
-                    q.CorrectAnswer
-                )).ToList()
-            )).ToList();
+            var examAsDto = exams.Select(e =>
+            {
+                TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(e.StartDate, turkeyTimeZone);
+                var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(e.EndDate, turkeyTimeZone);
+
+                return new ExamWithQuestionsResponseDto(
+                    e.ExamId,
+                    e.Title,
+                    e.Description,
+                    localStartDate,
+                    localCompletionDate,
+                    e.Duration,
+                    e.Questions.Select(q => new QuestionResponseDto(
+                        q.QuestionId,
+                        q.ExamId,
+                        q.QuestionText,
+                        q.OptionA,
+                        q.OptionB,
+                        q.OptionC,
+                        q.OptionD,
+                        q.CorrectAnswer
+                    )).ToList()
+                );
+            }).ToList();
+
             return ServiceResult<List<ExamWithQuestionsResponseDto>>.Success(examAsDto);
         }
 
@@ -146,20 +165,27 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<List<ExamWithInstructorResponseDto>>.Fail("There is no active exam.", HttpStatusCode.NotFound);
             }
 
-            var examAsDto = exams.Select(e => new ExamWithInstructorResponseDto(
-                e.ExamId,
-                e.Title,
-                e.Description,
-                e.StartDate,
-                e.EndDate,
-                e.Duration,
-                new UserResponseDto(
-                    e.Instructor.UserId,
-                    e.Instructor.FullName,
-                    e.Instructor.Email,
-                    e.Instructor.Role,
-                    e.Instructor.IsDeleted)
-            )).ToList();
+            var examAsDto = exams.Select(e =>
+            {
+                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(e.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+                var localEndDate = TimeZoneInfo.ConvertTimeFromUtc(e.EndDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+
+                return new ExamWithInstructorResponseDto(
+                    e.ExamId,
+                    e.Title,
+                    e.Description,
+                    localStartDate,
+                    localEndDate,
+                    e.Duration,
+                    new UserResponseDto(
+                        e.Instructor.UserId,
+                        e.Instructor.FullName,
+                        e.Instructor.Email,
+                        e.Instructor.Role,
+                        e.Instructor.IsDeleted)
+                );
+            }).ToList();
+
             return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
         }
 
@@ -170,12 +196,16 @@ namespace ExamApp.Services.Exam
             {
                 return ServiceResult<ExamWithDetailsResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
             }
+
+            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(exam.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+            var localEndDate = TimeZoneInfo.ConvertTimeFromUtc(exam.EndDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+
             var examAsDto = new ExamWithDetailsResponseDto(
                 exam.ExamId,
                 exam.Title,
                 exam.Description,
-                exam.StartDate,
-                exam.EndDate,
+                localStartDate,
+                localEndDate,
                 exam.Duration,
                 new UserResponseDto(
                     exam.Instructor.UserId,
@@ -194,6 +224,7 @@ namespace ExamApp.Services.Exam
                     q.CorrectAnswer
                 )).ToList()
             );
+
             return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto);
         }
     }

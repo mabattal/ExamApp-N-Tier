@@ -18,7 +18,12 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
+
+            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.StartDate, turkeyTimeZone);
+            var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.CompletionDate.Value, turkeyTimeZone);
+
+            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -29,7 +34,17 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, examResult.StartDate, examResult.CompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
+
+            // UTC olan tarihi Türkiye saatine çevirme
+            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+            var localCompletionDate = examResult.CompletionDate;
+
+            if (examResult.CompletionDate is not null)
+            {
+                localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.CompletionDate.Value, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+            }
+
+            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -47,19 +62,18 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail(questions.ErrorMessage, questions.Status);
             }
 
-            // Check if the exam has already been started by the user
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
             if (existingResult)
             {
                 return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data!.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTime.UtcNow)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            if(exam.Data.EndDate < DateTime.Now)
+            if (exam.Data.EndDate < DateTime.UtcNow)
             {
                 return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
             }
@@ -68,7 +82,7 @@ namespace ExamApp.Services.ExamResult
             {
                 UserId = userId,
                 ExamId = examId,
-                StartDate = DateTime.Now,
+                StartDate = DateTime.UtcNow, // UTC olarak kaydediyoruz
                 TotalQuestions = questions.Data!.Count
             };
             await examResultRepository.AddAsync(examResult);
@@ -104,23 +118,22 @@ namespace ExamApp.Services.ExamResult
             }
 
             var totalQuestions = questions.Data!.Count;
-            // Hiç cevap oluşturulmadan sınav bitirilmek istenirse
             var correctAnswers = 0;
             var incorrectAnswers = 0;
             var emptyAnswers = totalQuestions;
             decimal score = 0;
             var answers = await answerService.GetByUserAndExamAsync(userId, examId);
-            if(answers.IsSuccess)
+            if (answers.IsSuccess)
             {
                 correctAnswers = answers.Data!.Count(a => a.IsCorrect == true);
                 incorrectAnswers = answers.Data!.Count(a => a.IsCorrect == false);
                 emptyAnswers = totalQuestions - (correctAnswers + incorrectAnswers);
                 score = (correctAnswers / (decimal)totalQuestions) * 100;
             }
-            var duration = (int)(DateTime.Now - existingResult.StartDate).TotalMinutes;
+            var duration = (int)(DateTime.UtcNow - existingResult.StartDate).TotalMinutes;
 
             existingResult.Score = score;
-            existingResult.CompletionDate = DateTime.Now;
+            existingResult.CompletionDate = DateTime.UtcNow;
             existingResult.Duration = duration;
             existingResult.CorrectAnswers = correctAnswers;
             existingResult.IncorrectAnswers = incorrectAnswers;
@@ -136,8 +149,8 @@ namespace ExamApp.Services.ExamResult
         {
             var expiredResults = await examResultRepository
                 .Where(x => x.CompletionDate == null &&
-                            (x.StartDate.AddMinutes(x.Exam.Duration) <= DateTime.Now ||
-                             (x.StartDate.AddMinutes(x.Exam.Duration) > x.Exam.EndDate && x.Exam.EndDate <= DateTime.Now)))
+                            (x.StartDate.AddMinutes(x.Exam.Duration) <= DateTime.UtcNow ||
+                             (x.StartDate.AddMinutes(x.Exam.Duration) > x.Exam.EndDate && x.Exam.EndDate <= DateTime.UtcNow)))
                 .Include(x => x.Exam)
                 .ToListAsync();
 
@@ -151,7 +164,7 @@ namespace ExamApp.Services.ExamResult
                 var submitResult = await SubmitExamAsync(result.ExamId, result.UserId);
                 if (submitResult.IsFail)
                 {
-                    return submitResult;        //SubmitExamAsync servisinden dönen hatayı geri döndürdük
+                    return submitResult;
                 }
             }
 
@@ -171,7 +184,27 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<List<ExamResultResponseDto>>.Fail("No exam results found.", HttpStatusCode.NotFound);
             }
-            var examResultsAsDto = examResults.Select(x => new ExamResultResponseDto(x.ResultId, x.UserId, x.ExamId, x.Score, x.StartDate, x.CompletionDate, x.Duration, x.TotalQuestions, x.CorrectAnswers, x.IncorrectAnswers, x.EmptyAnswers)).ToList();
+
+            var examResultsAsDto = examResults.Select(x =>
+            {
+                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(x.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+                var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(x.CompletionDate.Value, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+
+                return new ExamResultResponseDto(
+                    x.ResultId,
+                    x.UserId,
+                    x.ExamId,
+                    x.Score,
+                    localStartDate, 
+                    localCompletionDate,
+                    x.Duration,
+                    x.TotalQuestions,
+                    x.CorrectAnswers,
+                    x.IncorrectAnswers,
+                    x.EmptyAnswers
+                );
+            }).ToList();
+
             return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);
         }
 
@@ -187,6 +220,5 @@ namespace ExamApp.Services.ExamResult
 
             return ServiceResult<ExamResultAverageScoreResponseDto>.Success(new ExamResultAverageScoreResponseDto(averageScore.Result));
         }
-
     }
 }

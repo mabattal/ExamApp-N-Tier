@@ -1,10 +1,10 @@
 ﻿using ExamApp.Repositories;
 using ExamApp.Repositories.Repositories;
+using ExamApp.Services.Exam;
+using ExamApp.Services.ExamResult;
 using ExamApp.Services.Question;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using ExamApp.Services.Exam;
-using ExamApp.Services.ExamResult;
 
 namespace ExamApp.Services.Answer
 {
@@ -65,7 +65,7 @@ namespace ExamApp.Services.Answer
                 UserId = createAnswerRequest.UserId,
                 QuestionId = createAnswerRequest.QuestionId,
                 SelectedAnswer = createAnswerRequest.SelectedAnswer,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.UtcNow,
                 IsCorrect = isCorrect
             };
             await answerRepository.AddAsync(answer);
@@ -94,6 +94,11 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
             }
 
+            if (examResult.Data!.CompletionDate is not null)
+            {
+                return ServiceResult.Fail("Exam has already ended", HttpStatusCode.BadRequest);
+            }
+
             var question = await questionService.GetByIdAsync(answer.QuestionId);
             if (question.IsFail)
             {
@@ -117,7 +122,7 @@ namespace ExamApp.Services.Answer
                             request.SelectedAnswer.Equals(question.Data!.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
             answer.SelectedAnswer = request.SelectedAnswer;
-            answer.CreatedDate = DateTime.Now;
+            answer.CreatedDate = DateTime.UtcNow;
             answer.IsCorrect = isCorrect;
 
             answerRepository.Update(answer);
@@ -134,7 +139,11 @@ namespace ExamApp.Services.Answer
             {
                 return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
-            var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer!, answer.IsCorrect);
+
+            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            var createdDate = TimeZoneInfo.ConvertTimeFromUtc(answer.CreatedDate, turkeyTimeZone);
+
+            var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer!, answer.IsCorrect, createdDate);
 
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
@@ -159,7 +168,13 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<List<AnswerResponseDto>>.Fail("Answers not found", HttpStatusCode.NotFound);
             }
 
-            var answerAsDto = answers.Select(a => new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer!, a.IsCorrect)).ToList();
+            var answerAsDto = answers.Select(a =>
+            {
+                TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+                var createdDate = TimeZoneInfo.ConvertTimeFromUtc(a.CreatedDate, turkeyTimeZone);
+
+                return new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer!, a.IsCorrect, createdDate);
+            }).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
         }
 
