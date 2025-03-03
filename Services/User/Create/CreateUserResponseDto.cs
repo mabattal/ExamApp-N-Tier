@@ -1,4 +1,4 @@
-﻿namespace ExamApp.Services.User
+﻿namespace ExamApp.Services.User.Create
 {
     public record CreateUserResponseDto(int Id);
 }

@@ -1,5 +1,7 @@
 ﻿using ExamApp.Repositories.Enums;
 using ExamApp.Services.User;
+using ExamApp.Services.User.Create;
+using ExamApp.Services.User.Update;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers

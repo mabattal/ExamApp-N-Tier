@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace ExamApp.Services.Exam
+namespace ExamApp.Services.Exam.Create
 {
     public class CreateExamRequestValidator : AbstractValidator<CreateExamRequestDto>
     {

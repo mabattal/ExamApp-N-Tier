@@ -1,4 +1,6 @@
 ﻿using ExamApp.Services.Question;
+using ExamApp.Services.Question.Create;
+using ExamApp.Services.Question.Update;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers

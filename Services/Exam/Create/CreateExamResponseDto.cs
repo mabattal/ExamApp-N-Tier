@@ -1,4 +1,4 @@
-﻿namespace ExamApp.Services.Exam
+﻿namespace ExamApp.Services.Exam.Create
 {
     public record CreateExamResponseDto(int Id);
 }

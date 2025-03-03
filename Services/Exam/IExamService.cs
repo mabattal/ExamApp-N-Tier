@@ -1,4 +1,7 @@
-﻿namespace ExamApp.Services.Exam
+﻿using ExamApp.Services.Exam.Create;
+using ExamApp.Services.Exam.Update;
+
+namespace ExamApp.Services.Exam
 {
     public interface IExamService
     {

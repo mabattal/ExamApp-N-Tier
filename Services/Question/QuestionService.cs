@@ -3,6 +3,8 @@ using System.Net;
 using ExamApp.Repositories;
 using ExamApp.Services.Exam;
 using Microsoft.EntityFrameworkCore;
+using ExamApp.Services.Question.Create;
+using ExamApp.Services.Question.Update;
 
 namespace ExamApp.Services.Question
 {

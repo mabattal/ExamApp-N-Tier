@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace ExamApp.Services.User
+namespace ExamApp.Services.User.Update
 {
     public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequestDto>
     {

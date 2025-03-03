@@ -1,4 +1,4 @@
-﻿namespace ExamApp.Services.Answer
+﻿namespace ExamApp.Services.Answer.Update
 {
     public record UpdateAnswerRequestDto(
         string SelectedAnswer);

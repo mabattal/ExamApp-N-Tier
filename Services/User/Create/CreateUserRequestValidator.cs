@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace ExamApp.Services.User
+namespace ExamApp.Services.User.Create
 {
     public class CreateUserRequestValidator : AbstractValidator<CreateUserRequestDto>
     {

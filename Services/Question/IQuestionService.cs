@@ -1,4 +1,7 @@
-﻿namespace ExamApp.Services.Question
+﻿using ExamApp.Services.Question.Create;
+using ExamApp.Services.Question.Update;
+
+namespace ExamApp.Services.Question
 {
     public interface IQuestionService
     {

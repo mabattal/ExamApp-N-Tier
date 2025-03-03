@@ -1,4 +1,7 @@
-﻿namespace ExamApp.Services.Answer
+﻿using ExamApp.Services.Answer.Create;
+using ExamApp.Services.Answer.Update;
+
+namespace ExamApp.Services.Answer
 {
     public interface IAnswerService
     {

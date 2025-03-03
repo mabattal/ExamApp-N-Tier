@@ -1,6 +1,7 @@
-﻿namespace ExamApp.Services.Question
+﻿namespace ExamApp.Services.Question.Create
 {
-    public record UpdateQuestionRequestDto(
+    public record CreateQuestionRequestDto(
+        int ExamId,
         string QuestionText,
         string OptionA,
         string OptionB,

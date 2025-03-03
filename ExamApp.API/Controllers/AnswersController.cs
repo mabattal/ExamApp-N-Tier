@@ -1,4 +1,6 @@
 ﻿using ExamApp.Services.Answer;
+using ExamApp.Services.Answer.Create;
+using ExamApp.Services.Answer.Update;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers

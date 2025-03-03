@@ -1,4 +1,4 @@
-﻿namespace ExamApp.Services.Exam
+﻿namespace ExamApp.Services.Exam.Update
 {
     public record UpdateExamRequestDto(
         string Title,

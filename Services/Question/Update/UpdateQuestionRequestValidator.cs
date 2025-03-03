@@ -1,13 +1,11 @@
 ﻿using FluentValidation;
 
-namespace ExamApp.Services.Question
+namespace ExamApp.Services.Question.Update
 {
-    public class CreateQuestionRequestValidator : AbstractValidator<CreateQuestionRequestDto>
+    public class UpdateQuestionRequestValidator : AbstractValidator<UpdateQuestionRequestDto>
     {
-        public CreateQuestionRequestValidator()
+        public UpdateQuestionRequestValidator()
         {
-            RuleFor(x => x.ExamId)
-                .GreaterThan(0).WithMessage("ExamId required and must be greater than 0.");
             RuleFor(x => x.QuestionText)
                 .NotEmpty().WithMessage("QuestionText required.")
                 .MaximumLength(1000).WithMessage("QuestionText must not exceed 1000 characters.");
