@@ -25,6 +25,7 @@ namespace ExamApp.Services.Extensions
 
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddScoped<IDateTimeUtcConversionService, DateTimeUtcConversionService>();
 
 
             return services;

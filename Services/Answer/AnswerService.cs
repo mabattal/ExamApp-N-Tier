@@ -10,7 +10,7 @@ using System.Net;
 
 namespace ExamApp.Services.Answer
 {
-    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork unitOfWork) : IAnswerService
+    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IAnswerService
     {
         public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest)
         {
@@ -61,6 +61,10 @@ namespace ExamApp.Services.Answer
                 ? null
                 : createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
+
+            //var answer = mapper.Map<Repositories.Entities.Answer>(createAnswerRequest);
+            //answer.CreatedDate = DateTime.UtcNow;
+            //answer.IsCorrect = isCorrect;
 
             var answer = new Repositories.Entities.Answer()
             {
@@ -141,10 +145,7 @@ namespace ExamApp.Services.Answer
             {
                 return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
-
-            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-            var createdDate = TimeZoneInfo.ConvertTimeFromUtc(answer.CreatedDate, turkeyTimeZone);
-
+            var createdDate = dateTimeService.ConvertToTurkeyTime(answer.CreatedDate);
             var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer!, answer.IsCorrect, createdDate);
 
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
@@ -172,9 +173,7 @@ namespace ExamApp.Services.Answer
 
             var answerAsDto = answers.Select(a =>
             {
-                TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-                var createdDate = TimeZoneInfo.ConvertTimeFromUtc(a.CreatedDate, turkeyTimeZone);
-
+                var createdDate = dateTimeService.ConvertToTurkeyTime(a.CreatedDate);
                 return new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer!, a.IsCorrect, createdDate);
             }).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
