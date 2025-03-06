@@ -42,6 +42,11 @@ namespace ExamApp.Services.Question
                 return ServiceResult<CreateQuestionResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
+            if (DateTime.Now > exam.Data!.StartDate)
+            {
+                return ServiceResult<CreateQuestionResponseDto>.Fail("You cannot add a question to an exam that has already started.", HttpStatusCode.BadRequest)!;
+            }
+
             var questionResult = await questionRepository.Where(x => x.ExamId == createQuestionRequest.ExamId && x.QuestionText == createQuestionRequest.QuestionText).AnyAsync();
             if (questionResult)
             {
