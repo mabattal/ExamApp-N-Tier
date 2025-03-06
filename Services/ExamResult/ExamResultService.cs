@@ -9,7 +9,7 @@ using ExamApp.Services.User;
 
 namespace ExamApp.Services.ExamResult
 {
-    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionService questionService, IAnswerService answerService, IExamService examService, IUserService userService, IUnitOfWork unitOfWork) : IExamResultService
+    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionService questionService, IAnswerService answerService, IExamService examService, IUserService userService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IExamResultService
     {
         public async Task<ServiceResult<ExamResultResponseDto?>> GetByIdAsync(int id)
         {
@@ -19,9 +19,13 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
 
-            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.StartDate, turkeyTimeZone);
-            var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.CompletionDate.Value, turkeyTimeZone);
+            if (examResult.CompletionDate is null)
+            {
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
+            }
+
+            var localStartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
+            var localCompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
 
             var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
@@ -35,14 +39,13 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
             }
 
-            // UTC olan tarihi Türkiye saatine çevirme
-            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
-            var localCompletionDate = examResult.CompletionDate;
-
-            if (examResult.CompletionDate is not null)
+            if (examResult.CompletionDate is null)
             {
-                localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(examResult.CompletionDate.Value, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
             }
+
+            var localStartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
+            var localCompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
 
             var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
@@ -53,13 +56,13 @@ namespace ExamApp.Services.ExamResult
             var exam = await examService.GetByIdAsync(examId);
             if (exam.IsFail)
             {
-                return ServiceResult.Fail(exam.ErrorMessage, exam.Status);
+                return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
             var questions = await questionService.GetByExamIdAsync(examId);
             if (questions.IsFail)
             {
-                return ServiceResult.Fail(questions.ErrorMessage, questions.Status);
+                return ServiceResult.Fail(questions.ErrorMessage!, questions.Status);
             }
 
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
@@ -68,12 +71,12 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data!.StartDate > DateTime.UtcNow)
+            if (exam.Data!.StartDate > DateTime.Now)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data.EndDate < DateTime.UtcNow)
+            if (exam.Data.EndDate < DateTime.Now)
             {
                 return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
             }
@@ -82,7 +85,7 @@ namespace ExamApp.Services.ExamResult
             {
                 UserId = userId,
                 ExamId = examId,
-                StartDate = DateTime.UtcNow, // UTC olarak kaydediyoruz
+                StartDate = DateTime.UtcNow,
                 TotalQuestions = questions.Data!.Count
             };
             await examResultRepository.AddAsync(examResult);
@@ -179,23 +182,23 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<List<ExamResultResponseDto>>.Fail(user.ErrorMessage!, user.Status);
             }
 
-            var examResults = await examResultRepository.GetByUserId(userId).ToListAsync();
+            var examResults = await examResultRepository.Where((er => er.UserId == userId && er.CompletionDate != null)).ToListAsync();
             if (!examResults.Any())
             {
-                return ServiceResult<List<ExamResultResponseDto>>.Fail("No exam results found.", HttpStatusCode.NotFound);
+                return ServiceResult<List<ExamResultResponseDto>>.Fail("No completed exam results found.", HttpStatusCode.NotFound);
             }
 
             var examResultsAsDto = examResults.Select(x =>
             {
-                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(x.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
-                var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(x.CompletionDate.Value, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+                var localStartDate = dateTimeService.ConvertToTurkeyTime(x.StartDate);
+                var localCompletionDate = dateTimeService.ConvertToTurkeyTime((x.CompletionDate!.Value));
 
                 return new ExamResultResponseDto(
                     x.ResultId,
                     x.UserId,
                     x.ExamId,
                     x.Score,
-                    localStartDate, 
+                    localStartDate,
                     localCompletionDate,
                     x.Duration,
                     x.TotalQuestions,
