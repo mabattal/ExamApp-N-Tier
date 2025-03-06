@@ -10,8 +10,8 @@ using ExamApp.Services.Question.Update;
 namespace ExamApp.Services.Question
 {
     public class QuestionService(
-        IQuestionRepository questionRepository, 
-        IExamService examService, 
+        IQuestionRepository questionRepository,
+        IExamService examService,
         IUnitOfWork unitOfWork,
         IMapper mapper) : IQuestionService
     {
@@ -94,6 +94,11 @@ namespace ExamApp.Services.Question
             if (question is null)
             {
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
+            }
+
+            if (DateTime.Now > question.Exam.StartDate)
+            {
+                return ServiceResult.Fail("You cannot delete a question in an exam that has already started.", HttpStatusCode.BadRequest);
             }
             questionRepository.Delete(question);
             await unitOfWork.SaveChangeAsync();
