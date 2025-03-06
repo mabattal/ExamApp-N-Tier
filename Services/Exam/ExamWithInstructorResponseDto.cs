@@ -9,7 +9,7 @@ namespace ExamApp.Services.Exam
         DateTime StartDate,
         DateTime EndDate,
         int Duration,
-        UserResponseDto Instructors
+        UserResponseDto Instructor
     );
 }
 

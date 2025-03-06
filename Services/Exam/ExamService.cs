@@ -6,10 +6,16 @@ using ExamApp.Services.Question;
 using ExamApp.Services.User;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using AutoMapper;
 
 namespace ExamApp.Services.Exam
 {
-    public class ExamService(IExamRepository examRepository, IUserService userService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IExamService
+    public class ExamService(
+        IExamRepository examRepository, 
+        IUserService userService, 
+        IUnitOfWork unitOfWork, 
+        IDateTimeUtcConversionService dateTimeService,
+        IMapper mapper) : IExamService
     {
         public async Task<ServiceResult<CreateExamResponseDto>> AddAsync(CreateExamRequestDto examRequest)
         {
@@ -19,33 +25,26 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
-            var startDateUtc = dateTimeService.ConvertToUtc(examRequest.StartDate);
-            var endDateUtc = dateTimeService.ConvertToUtc(examRequest.EndDate);
-            if (startDateUtc >= endDateUtc)
+            if (examRequest.StartDate >= examRequest.EndDate)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.Duration > (endDateUtc - startDateUtc).TotalMinutes)
+            if (examRequest.Duration > (examRequest.EndDate - examRequest.StartDate).TotalMinutes)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (startDateUtc < DateTime.UtcNow || endDateUtc < DateTime.UtcNow)
+            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
             {
-                return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current UTC date.", HttpStatusCode.BadRequest);
+                return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
             }
 
-            var exam = new Repositories.Entities.Exam()
-            {
-                Title = examRequest.Title,
-                Description = examRequest.Description,
-                StartDate = startDateUtc,
-                EndDate = endDateUtc,
-                Duration = examRequest.Duration,
-                CreatedBy = examRequest.CreatedBy,
-                IsDeleted = false
-            };
+            var exam = mapper.Map<Repositories.Entities.Exam>(examRequest);
+            exam.StartDate = dateTimeService.ConvertToUtc(examRequest.StartDate);
+            exam.EndDate = dateTimeService.ConvertToUtc(examRequest.EndDate);
+            exam.IsDeleted = false;
+
             await examRepository.AddAsync(exam);
             await unitOfWork.SaveChangeAsync();
 
@@ -71,28 +70,24 @@ namespace ExamApp.Services.Exam
                 return ServiceResult.Fail("You are not authorized to update this exam.", HttpStatusCode.Forbidden);
             }
 
-            var startDateUtc = dateTimeService.ConvertToUtc(examRequest.StartDate);
-            var endDateUtc = dateTimeService.ConvertToUtc(examRequest.EndDate);
-            if (startDateUtc >= endDateUtc)
+            if (examRequest.StartDate >= examRequest.EndDate)
             {
                 return ServiceResult.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.Duration > (endDateUtc - startDateUtc).TotalMinutes)
+            if (examRequest.Duration > (examRequest.EndDate - examRequest.StartDate).TotalMinutes)
             {
                 return ServiceResult.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (startDateUtc < DateTime.UtcNow || endDateUtc < DateTime.UtcNow)
+            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
             {
-                return ServiceResult.Fail("Start date and end date must be greater than the current UTC date.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
             }
 
-            exam.Title = examRequest.Title;
-            exam.Description = examRequest.Description;
-            exam.StartDate = startDateUtc;
-            exam.EndDate = endDateUtc;
-            exam.Duration = examRequest.Duration;
+            mapper.Map(examRequest, exam);
+            exam.StartDate = dateTimeService.ConvertToUtc(examRequest.StartDate);
+            exam.EndDate = dateTimeService.ConvertToUtc(examRequest.EndDate);
 
             examRepository.Update(exam);
             await unitOfWork.SaveChangeAsync();
@@ -125,27 +120,10 @@ namespace ExamApp.Services.Exam
             var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
             var examAsDto = exams.Select(e =>
             {
-                var localStartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
-                var localCompletionDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
+                e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
 
-                return new ExamWithQuestionsResponseDto(
-                    e.ExamId,
-                    e.Title,
-                    e.Description,
-                    localStartDate,
-                    localCompletionDate,
-                    e.Duration,
-                    e.Questions.Select(q => new QuestionResponseDto(
-                        q.QuestionId,
-                        q.ExamId,
-                        q.QuestionText,
-                        q.OptionA,
-                        q.OptionB,
-                        q.OptionC,
-                        q.OptionD,
-                        q.CorrectAnswer
-                    )).ToList()
-                );
+                return mapper.Map<ExamWithQuestionsResponseDto>(e);
             }).ToList();
 
             return ServiceResult<List<ExamWithQuestionsResponseDto>>.Success(examAsDto);
@@ -161,23 +139,10 @@ namespace ExamApp.Services.Exam
 
             var examAsDto = exams.Select(e =>
             {
-                var localStartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
-                var localEndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
+                e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
 
-                return new ExamWithInstructorResponseDto(
-                    e.ExamId,
-                    e.Title,
-                    e.Description,
-                    localStartDate,
-                    localEndDate,
-                    e.Duration,
-                    new UserResponseDto(
-                        e.Instructor.UserId,
-                        e.Instructor.FullName,
-                        e.Instructor.Email,
-                        e.Instructor.Role,
-                        e.Instructor.IsDeleted)
-                );
+                return mapper.Map<ExamWithInstructorResponseDto>(e);
             }).ToList();
 
             return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
@@ -191,33 +156,9 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<ExamWithDetailsResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
             }
 
-            var localStartDate = dateTimeService.ConvertToTurkeyTime(exam.StartDate);
-            var localEndDate = dateTimeService.ConvertToTurkeyTime(exam.EndDate);
-
-            var examAsDto = new ExamWithDetailsResponseDto(
-                exam.ExamId,
-                exam.Title,
-                exam.Description,
-                localStartDate,
-                localEndDate,
-                exam.Duration,
-                new UserResponseDto(
-                    exam.Instructor.UserId,
-                    exam.Instructor.FullName,
-                    exam.Instructor.Email,
-                    exam.Instructor.Role,
-                    exam.Instructor.IsDeleted),
-                exam.Questions.Select(q => new QuestionResponseDto(
-                    q.QuestionId,
-                    q.ExamId,
-                    q.QuestionText,
-                    q.OptionA,
-                    q.OptionB,
-                    q.OptionC,
-                    q.OptionD,
-                    q.CorrectAnswer
-                )).ToList()
-            );
+            exam.StartDate = dateTimeService.ConvertToTurkeyTime(exam.StartDate);
+            exam.EndDate = dateTimeService.ConvertToTurkeyTime(exam.EndDate);
+            var examAsDto = mapper.Map<ExamWithDetailsResponseDto>(exam);
 
             return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto);
         }
