@@ -58,6 +58,18 @@ namespace ExamApp.Services.ExamResult
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
+        public async Task<ServiceResult<ExamResultResponseDto?>> GetByUserAndExam(int userId, int examId)
+        {
+            var examResult = await examResultRepository.GetByUserIdAndExamId(userId, examId).SingleOrDefaultAsync();
+            if (examResult is null)
+            {
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result not found.", HttpStatusCode.NotFound)!;
+            }
+
+            var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
+            return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
+        }
+
         public async Task<ServiceResult> StartExamAsync(int examId, int userId)
         {
             var exam = await examService.GetByIdAsync(examId);

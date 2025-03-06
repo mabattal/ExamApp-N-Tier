@@ -7,10 +7,18 @@ using ExamApp.Services.ExamResult;
 using ExamApp.Services.Question;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using AutoMapper;
 
 namespace ExamApp.Services.Answer
 {
-    public class AnswerService(IAnswerRepository answerRepository, IQuestionService questionService, Lazy<IExamResultService> examResultService, IExamService examService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IAnswerService
+    public class AnswerService(
+        IAnswerRepository answerRepository, 
+        IQuestionService questionService, 
+        Lazy<IExamResultService> examResultService, 
+        IExamService examService, 
+        IUnitOfWork unitOfWork, 
+        IDateTimeUtcConversionService dateTimeService,
+        IMapper mapper) : IAnswerService
     {
         public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest)
         {
@@ -20,7 +28,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            var examResult = await examResultService.Value.GetByUserIdAndExamId(createAnswerRequest.UserId, createAnswerRequest.ExamId);
+            var examResult = await examResultService.Value.GetByUserAndExam(createAnswerRequest.UserId, createAnswerRequest.ExamId);
             if (examResult.IsFail)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
@@ -49,7 +57,7 @@ namespace ExamApp.Services.Answer
             }
 
             // Kullanıcı için sınav süresi mi doldu, yoksa sınav zaten bitti mi?
-            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
+            var examEndTime = dateTimeService.ConvertToTurkeyTime(examResult.Data!.StartDate).AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
             if (DateTime.Now > finalExamEndTime)
             {
@@ -61,19 +69,10 @@ namespace ExamApp.Services.Answer
                 ? null
                 : createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
+            var answer = mapper.Map<Repositories.Entities.Answer>(createAnswerRequest);
+            answer.CreatedDate = DateTime.UtcNow;
+            answer.IsCorrect = isCorrect;
 
-            //var answer = mapper.Map<Repositories.Entities.Answer>(createAnswerRequest);
-            //answer.CreatedDate = DateTime.UtcNow;
-            //answer.IsCorrect = isCorrect;
-
-            var answer = new Repositories.Entities.Answer()
-            {
-                UserId = createAnswerRequest.UserId,
-                QuestionId = createAnswerRequest.QuestionId,
-                SelectedAnswer = createAnswerRequest.SelectedAnswer,
-                CreatedDate = DateTime.UtcNow,
-                IsCorrect = isCorrect
-            };
             await answerRepository.AddAsync(answer);
             await unitOfWork.SaveChangeAsync();
 
@@ -94,7 +93,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            var examResult = await examResultService.Value.GetByUserIdAndExamId(answer.UserId, answer.Question.ExamId);
+            var examResult = await examResultService.Value.GetByUserAndExam(answer.UserId, answer.Question.ExamId);
             if (examResult.IsFail)
             {
                 return ServiceResult.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
@@ -116,7 +115,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
+            var examEndTime = dateTimeService.ConvertToTurkeyTime(examResult.Data!.StartDate).AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
             if (DateTime.Now > finalExamEndTime)
             {
@@ -126,8 +125,8 @@ namespace ExamApp.Services.Answer
             //Cevap doğru ise true, yanlış ise false olacak şekilde kontrol edilir
             var isCorrect = !string.IsNullOrEmpty(request.SelectedAnswer) &&
                             request.SelectedAnswer.Equals(question.Data!.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
-
-            answer.SelectedAnswer = request.SelectedAnswer;
+            
+            mapper.Map(request, answer);
             answer.CreatedDate = DateTime.UtcNow;
             answer.IsCorrect = isCorrect;
 
@@ -145,8 +144,8 @@ namespace ExamApp.Services.Answer
             {
                 return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
-            var createdDate = dateTimeService.ConvertToTurkeyTime(answer.CreatedDate);
-            var answerAsDto = new AnswerResponseDto(answer.AnswerId, answer.UserId, answer.QuestionId, answer.SelectedAnswer!, answer.IsCorrect, createdDate);
+            answer.CreatedDate = dateTimeService.ConvertToTurkeyTime(answer.CreatedDate);
+            var answerAsDto = mapper.Map<AnswerResponseDto>(answer);
 
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
@@ -168,13 +167,13 @@ namespace ExamApp.Services.Answer
             var answers = await answerRepository.GetByUserAndExam(userId, examId).ToListAsync();
             if (!answers.Any())
             {
-                return ServiceResult<List<AnswerResponseDto>>.Fail("Answers not found", HttpStatusCode.NotFound);
+                return ServiceResult<List<AnswerResponseDto>>.Fail("Answers not found.", HttpStatusCode.NotFound);
             }
 
             var answerAsDto = answers.Select(a =>
             {
-                var createdDate = dateTimeService.ConvertToTurkeyTime(a.CreatedDate);
-                return new AnswerResponseDto(a.AnswerId, a.UserId, a.QuestionId, a.SelectedAnswer!, a.IsCorrect, createdDate);
+                a.CreatedDate = dateTimeService.ConvertToTurkeyTime(a.CreatedDate);
+                return mapper.Map<AnswerResponseDto>(a);
             }).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
         }
