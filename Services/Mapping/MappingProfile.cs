@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ExamApp.Services.ExamResult;
 using ExamApp.Services.Question;
 using ExamApp.Services.Question.Create;
 using ExamApp.Services.Question.Update;
@@ -22,6 +23,9 @@ namespace ExamApp.Services.Mapping
             CreateMap<CreateQuestionRequestDto, Repositories.Entities.Question>();
             CreateMap<UpdateQuestionRequestDto, Repositories.Entities.Question>();
             CreateMap<Repositories.Entities.Question, QuestionResponseWithoutCorrectAnswerDto>();
+
+            //ExamResult Mapping
+            CreateMap<Repositories.Entities.ExamResult, ExamResultResponseDto>();
         }
     }
 }

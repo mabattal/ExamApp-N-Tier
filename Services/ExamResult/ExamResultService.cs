@@ -2,6 +2,7 @@
 using ExamApp.Repositories.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using AutoMapper;
 using ExamApp.Services.Answer;
 using ExamApp.Services.Exam;
 using ExamApp.Services.Question;
@@ -9,7 +10,15 @@ using ExamApp.Services.User;
 
 namespace ExamApp.Services.ExamResult
 {
-    public class ExamResultService(IExamResultRepository examResultRepository, IQuestionService questionService, IAnswerService answerService, IExamService examService, IUserService userService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IExamResultService
+    public class ExamResultService(
+        IExamResultRepository examResultRepository, 
+        IQuestionService questionService, 
+        IAnswerService answerService, 
+        IExamService examService, 
+        IUserService userService, 
+        IUnitOfWork unitOfWork, 
+        IDateTimeUtcConversionService dateTimeService,
+        IMapper mapper) : IExamResultService
     {
         public async Task<ServiceResult<ExamResultResponseDto?>> GetByIdAsync(int id)
         {
@@ -24,10 +33,9 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
             }
 
-            var localStartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
-            var localCompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
-
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
+            examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
+            var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -44,10 +52,9 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
             }
 
-            var localStartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
-            var localCompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
-
-            var examResultAsDto = new ExamResultResponseDto(examResult.ResultId, examResult.UserId, examResult.ExamId, examResult.Score, localStartDate, localCompletionDate, examResult.Duration, examResult.TotalQuestions, examResult.CorrectAnswers, examResult.IncorrectAnswers, examResult.EmptyAnswers);
+            examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
+            var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -190,22 +197,11 @@ namespace ExamApp.Services.ExamResult
 
             var examResultsAsDto = examResults.Select(x =>
             {
-                var localStartDate = dateTimeService.ConvertToTurkeyTime(x.StartDate);
-                var localCompletionDate = dateTimeService.ConvertToTurkeyTime((x.CompletionDate!.Value));
+                x.StartDate = dateTimeService.ConvertToTurkeyTime(x.StartDate);
+                x.CompletionDate = dateTimeService.ConvertToTurkeyTime(x.CompletionDate!.Value);
 
-                return new ExamResultResponseDto(
-                    x.ResultId,
-                    x.UserId,
-                    x.ExamId,
-                    x.Score,
-                    localStartDate,
-                    localCompletionDate,
-                    x.Duration,
-                    x.TotalQuestions,
-                    x.CorrectAnswers,
-                    x.IncorrectAnswers,
-                    x.EmptyAnswers
-                );
+                return mapper.Map<ExamResultResponseDto>(x);
+
             }).ToList();
 
             return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);
