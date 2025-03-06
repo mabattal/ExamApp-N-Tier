@@ -69,6 +69,11 @@ namespace ExamApp.Services.Question
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
             }
 
+            if (DateTime.Now > question.Exam.StartDate)
+            {
+                return ServiceResult.Fail("You cannot update a question in an exam that has already started.", HttpStatusCode.BadRequest);
+            }
+
             //question.QuestionText = updateQuestionRequest.QuestionText;
             //question.OptionA = updateQuestionRequest.OptionA;
             //question.OptionB = updateQuestionRequest.OptionB;
