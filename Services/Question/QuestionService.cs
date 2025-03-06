@@ -1,5 +1,6 @@
 ﻿using ExamApp.Repositories.Repositories;
 using System.Net;
+using AutoMapper;
 using ExamApp.Repositories;
 using ExamApp.Services.Exam;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,11 @@ using ExamApp.Services.Question.Update;
 
 namespace ExamApp.Services.Question
 {
-    public class QuestionService(IQuestionRepository questionRepository, IExamService examService, IUnitOfWork unitOfWork) : IQuestionService
+    public class QuestionService(
+        IQuestionRepository questionRepository, 
+        IExamService examService, 
+        IUnitOfWork unitOfWork,
+        IMapper mapper) : IQuestionService
     {
         public async Task<ServiceResult<QuestionResponseDto?>> GetByIdAsync(int id)
         {
@@ -24,7 +29,7 @@ namespace ExamApp.Services.Question
                 return ServiceResult<QuestionResponseDto>.Fail("The exam of the question has been deleted", HttpStatusCode.BadRequest)!;
             }
 
-            var questionAsDto = new QuestionResponseDto(question.QuestionId, question.ExamId, question.QuestionText, question.OptionA, question.OptionB, question.OptionC, question.OptionD, question.CorrectAnswer);
+            var questionAsDto = mapper.Map<QuestionResponseDto>(question);
 
             return ServiceResult<QuestionResponseDto>.Success(questionAsDto)!;
         }
@@ -43,16 +48,7 @@ namespace ExamApp.Services.Question
                 return ServiceResult<CreateQuestionResponseDto>.Fail("Question already exists in this exam.", HttpStatusCode.BadRequest)!;
             }
 
-            var question = new Repositories.Entities.Question()
-            {
-                ExamId = createQuestionRequest.ExamId,
-                QuestionText = createQuestionRequest.QuestionText,
-                OptionA = createQuestionRequest.OptionA,
-                OptionB = createQuestionRequest.OptionB,
-                OptionC = createQuestionRequest.OptionC,
-                OptionD = createQuestionRequest.OptionD,
-                CorrectAnswer = createQuestionRequest.CorrectAnswer
-            };
+            var question = mapper.Map<Repositories.Entities.Question>(createQuestionRequest);
 
             await questionRepository.AddAsync(question);
             await unitOfWork.SaveChangeAsync();
@@ -68,12 +64,14 @@ namespace ExamApp.Services.Question
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
             }
 
-            question.QuestionText = updateQuestionRequest.QuestionText;
-            question.OptionA = updateQuestionRequest.OptionA;
-            question.OptionB = updateQuestionRequest.OptionB;
-            question.OptionC = updateQuestionRequest.OptionC;
-            question.OptionD = updateQuestionRequest.OptionD;
-            question.CorrectAnswer = updateQuestionRequest.CorrectAnswer;
+            //question.QuestionText = updateQuestionRequest.QuestionText;
+            //question.OptionA = updateQuestionRequest.OptionA;
+            //question.OptionB = updateQuestionRequest.OptionB;
+            //question.OptionC = updateQuestionRequest.OptionC;
+            //question.OptionD = updateQuestionRequest.OptionD;
+            //question.CorrectAnswer = updateQuestionRequest.CorrectAnswer;
+
+            question = mapper.Map(updateQuestionRequest, question);
 
             questionRepository.Update(question);
             await unitOfWork.SaveChangeAsync();
@@ -106,7 +104,7 @@ namespace ExamApp.Services.Question
                 return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
             }
 
-            var questionsAsDto = questions.Select(q => new QuestionResponseWithoutCorrectAnswerDto(q.QuestionId, q.ExamId, q.QuestionText, q.OptionA, q.OptionB, q.OptionC, q.OptionD)).ToList();
+            var questionsAsDto = mapper.Map<List<QuestionResponseWithoutCorrectAnswerDto>>(questions);
             return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Success(questionsAsDto);
         }
     }
