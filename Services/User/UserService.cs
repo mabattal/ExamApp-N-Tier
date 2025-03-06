@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoMapper;
 using ExamApp.Repositories;
 using ExamApp.Repositories.Enums;
 using ExamApp.Repositories.Repositories;
@@ -8,12 +9,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExamApp.Services.User
 {
-    public class UserService(IUserRepository userRepository, IUnitOfWork unitOfWork) : IUserService
+    public class UserService(
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork,
+        IMapper mapper) : IUserService
     {
         public async Task<ServiceResult<List<UserResponseDto>>> GetAllAsync()
         {
             var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).ToListAsync();
-            var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
+            var userAsDto = mapper.Map<List<UserResponseDto>>(users);
+
+            //manuel mapping
+            //var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
 
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
@@ -27,7 +34,7 @@ namespace ExamApp.Services.User
             // 4 - 10 => 31, 40 kayıt    skip(30).take(10)
 
             var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-            var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
+            var userAsDto = mapper.Map<List<UserResponseDto>>(users);
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
@@ -52,7 +59,7 @@ namespace ExamApp.Services.User
                 }
             }
 
-            var userDto = new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
+            var userDto = mapper.Map<UserResponseDto>(user);
             return ServiceResult<UserResponseDto?>.Success(userDto);
         }
 
@@ -63,7 +70,7 @@ namespace ExamApp.Services.User
             {
                 return ServiceResult<UserResponseDto>.Fail("Instructor not found or not authorized.", HttpStatusCode.NotFound)!;
             }
-            var userAsDto = new UserResponseDto(instructor.UserId, instructor.FullName, instructor.Email, instructor.Role, instructor.IsDeleted);
+            var userAsDto = mapper.Map<UserResponseDto>(instructor);
             return ServiceResult<UserResponseDto>.Success(userAsDto)!;
         }
 
@@ -74,14 +81,9 @@ namespace ExamApp.Services.User
                 return ServiceResult<CreateUserResponseDto>.Fail("E-mail address already exists", HttpStatusCode.BadRequest);
             }
 
-            var user = new Repositories.Entities.User()
-            {
-                FullName = createUserRequest.FullName,
-                Email = createUserRequest.Email,
-                Password = createUserRequest.Password,
-                Role = createUserRequest.Role,
-                IsDeleted = false
-            };
+            var user = mapper.Map<Repositories.Entities.User>(createUserRequest);
+            user.IsDeleted = false;
+
             await userRepository.AddAsync(user);
             await unitOfWork.SaveChangeAsync();
             return ServiceResult<CreateUserResponseDto>.Success(new CreateUserResponseDto(user.UserId));
@@ -101,10 +103,7 @@ namespace ExamApp.Services.User
                 return ServiceResult.Fail("E-mail address already exists", HttpStatusCode.BadRequest);
             }
 
-            user.FullName = updateUserRequest.FullName;
-            user.Email = updateUserRequest.Email;
-            user.Password = updateUserRequest.Password;
-            user.Role = updateUserRequest.Role;
+            user = mapper.Map(updateUserRequest, user);
 
             userRepository.Update(user);
             await unitOfWork.SaveChangeAsync();
@@ -130,7 +129,7 @@ namespace ExamApp.Services.User
         public async Task<ServiceResult<List<UserResponseDto>>> GetByRole(UserRole role)
         {
             var users = await userRepository.Where(u => u.Role == role && u.IsDeleted != true).ToListAsync();
-            var userAsDto = users.Select(u => new UserResponseDto(u.UserId, u.FullName, u.Email, u.Role, u.IsDeleted)).ToList();
+            var userAsDto = mapper.Map<List<UserResponseDto>>(users);
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
