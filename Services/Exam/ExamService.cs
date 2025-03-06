@@ -9,7 +9,7 @@ using System.Net;
 
 namespace ExamApp.Services.Exam
 {
-    public class ExamService(IExamRepository examRepository, IUserService userService, IUnitOfWork unitOfWork) : IExamService
+    public class ExamService(IExamRepository examRepository, IUserService userService, IUnitOfWork unitOfWork, IDateTimeUtcConversionService dateTimeService) : IExamService
     {
         public async Task<ServiceResult<CreateExamResponseDto>> AddAsync(CreateExamRequestDto examRequest)
         {
@@ -19,12 +19,8 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
-            // Türkiye saat dilimini al
-            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.StartDate, DateTimeKind.Unspecified), turkeyTimeZone);
-            var endDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.EndDate, DateTimeKind.Unspecified), turkeyTimeZone);
-
-
+            var startDateUtc = dateTimeService.ConvertToUtc(examRequest.StartDate);
+            var endDateUtc = dateTimeService.ConvertToUtc(examRequest.EndDate);
             if (startDateUtc >= endDateUtc)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
@@ -75,11 +71,8 @@ namespace ExamApp.Services.Exam
                 return ServiceResult.Fail("You are not authorized to update this exam.", HttpStatusCode.Forbidden);
             }
 
-            // Türkiye saat dilimini al
-            TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.StartDate, DateTimeKind.Unspecified), turkeyTimeZone);
-            var endDateUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(examRequest.EndDate, DateTimeKind.Unspecified), turkeyTimeZone);
-
+            var startDateUtc = dateTimeService.ConvertToUtc(examRequest.StartDate);
+            var endDateUtc = dateTimeService.ConvertToUtc(examRequest.EndDate);
             if (startDateUtc >= endDateUtc)
             {
                 return ServiceResult.Fail("Start date cannot be greater than end date.", HttpStatusCode.BadRequest);
@@ -132,9 +125,8 @@ namespace ExamApp.Services.Exam
             var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
             var examAsDto = exams.Select(e =>
             {
-                TimeZoneInfo turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
-                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(e.StartDate, turkeyTimeZone);
-                var localCompletionDate = TimeZoneInfo.ConvertTimeFromUtc(e.EndDate, turkeyTimeZone);
+                var localStartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
+                var localCompletionDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
 
                 return new ExamWithQuestionsResponseDto(
                     e.ExamId,
@@ -169,8 +161,8 @@ namespace ExamApp.Services.Exam
 
             var examAsDto = exams.Select(e =>
             {
-                var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(e.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
-                var localEndDate = TimeZoneInfo.ConvertTimeFromUtc(e.EndDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+                var localStartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
+                var localEndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
 
                 return new ExamWithInstructorResponseDto(
                     e.ExamId,
@@ -199,8 +191,8 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<ExamWithDetailsResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
             }
 
-            var localStartDate = TimeZoneInfo.ConvertTimeFromUtc(exam.StartDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
-            var localEndDate = TimeZoneInfo.ConvertTimeFromUtc(exam.EndDate, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time"));
+            var localStartDate = dateTimeService.ConvertToTurkeyTime(exam.StartDate);
+            var localEndDate = dateTimeService.ConvertToTurkeyTime(exam.EndDate);
 
             var examAsDto = new ExamWithDetailsResponseDto(
                 exam.ExamId,
