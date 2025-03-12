@@ -7,16 +7,17 @@ using ExamApp.Services.Answer;
 using ExamApp.Services.Exam;
 using ExamApp.Services.Question;
 using ExamApp.Services.User;
+using ExamApp.Repositories.Entities;
 
 namespace ExamApp.Services.ExamResult
 {
     public class ExamResultService(
-        IExamResultRepository examResultRepository, 
-        IQuestionService questionService, 
-        IAnswerService answerService, 
-        IExamService examService, 
-        IUserService userService, 
-        IUnitOfWork unitOfWork, 
+        IExamResultRepository examResultRepository,
+        IQuestionService questionService,
+        IAnswerService answerService,
+        IExamService examService,
+        IUserService userService,
+        IUnitOfWork unitOfWork,
         IDateTimeUtcConversionService dateTimeService,
         IMapper mapper) : IExamResultService
     {
@@ -36,6 +37,9 @@ namespace ExamApp.Services.ExamResult
             examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
             examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
             var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
+            examResult.StartDate = dateTimeService.ConvertToUtc(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertToUtc(examResult.CompletionDate.Value);
+
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -55,6 +59,9 @@ namespace ExamApp.Services.ExamResult
             examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
             examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
             var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
+            examResult.StartDate = dateTimeService.ConvertToUtc(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertToUtc(examResult.CompletionDate.Value);
+
             return ServiceResult<ExamResultResponseDto>.Success(examResultAsDto)!;
         }
 
@@ -206,14 +213,17 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<List<ExamResultResponseDto>>.Fail("No completed exam results found.", HttpStatusCode.NotFound);
             }
-
-            var examResultsAsDto = examResults.Select(x =>
+            
+            var examResultsAsDto = examResults
+                .Where(x => x.CompletionDate != null)
+                .Select(x =>
             {
                 x.StartDate = dateTimeService.ConvertToTurkeyTime(x.StartDate);
                 x.CompletionDate = dateTimeService.ConvertToTurkeyTime(x.CompletionDate!.Value);
-
-                return mapper.Map<ExamResultResponseDto>(x);
-
+                var dto = mapper.Map<ExamResultResponseDto>(x);
+                x.StartDate = dateTimeService.ConvertToUtc(x.StartDate);
+                x.CompletionDate = dateTimeService.ConvertToUtc(x.CompletionDate!.Value);
+                return dto;
             }).ToList();
 
             return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);

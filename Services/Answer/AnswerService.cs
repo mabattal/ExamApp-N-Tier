@@ -146,6 +146,7 @@ namespace ExamApp.Services.Answer
             }
             answer.CreatedDate = dateTimeService.ConvertToTurkeyTime(answer.CreatedDate);
             var answerAsDto = mapper.Map<AnswerResponseDto>(answer);
+            answer.CreatedDate = dateTimeService.ConvertToUtc(answer.CreatedDate);
 
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
@@ -173,7 +174,9 @@ namespace ExamApp.Services.Answer
             var answerAsDto = answers.Select(a =>
             {
                 a.CreatedDate = dateTimeService.ConvertToTurkeyTime(a.CreatedDate);
-                return mapper.Map<AnswerResponseDto>(a);
+                var dto = mapper.Map<AnswerResponseDto>(a);
+                a.CreatedDate = dateTimeService.ConvertToUtc(a.CreatedDate);
+                return dto;
             }).ToList();
             return ServiceResult<List<AnswerResponseDto>>.Success(answerAsDto);
         }

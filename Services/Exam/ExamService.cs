@@ -122,8 +122,10 @@ namespace ExamApp.Services.Exam
             {
                 e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
                 e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
-
-                return mapper.Map<ExamWithQuestionsResponseDto>(e);
+                var dto = mapper.Map<ExamWithQuestionsResponseDto>(e);
+                e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
+                return dto;
             }).ToList();
 
             return ServiceResult<List<ExamWithQuestionsResponseDto>>.Success(examAsDto);
@@ -141,8 +143,10 @@ namespace ExamApp.Services.Exam
             {
                 e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
                 e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
-
-                return mapper.Map<ExamWithInstructorResponseDto>(e);
+                var dto = mapper.Map<ExamWithInstructorResponseDto>(e);
+                e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
+                return dto;
             }).ToList();
 
             return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
@@ -159,6 +163,8 @@ namespace ExamApp.Services.Exam
             exam.StartDate = dateTimeService.ConvertToTurkeyTime(exam.StartDate);
             exam.EndDate = dateTimeService.ConvertToTurkeyTime(exam.EndDate);
             var examAsDto = mapper.Map<ExamWithDetailsResponseDto>(exam);
+            exam.StartDate = dateTimeService.ConvertToUtc(exam.StartDate);
+            exam.EndDate = dateTimeService.ConvertToUtc(exam.EndDate);
 
             return ServiceResult<ExamWithDetailsResponseDto?>.Success(examAsDto);
         }
