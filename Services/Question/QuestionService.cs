@@ -1,11 +1,11 @@
-﻿using ExamApp.Repositories.Repositories;
-using System.Net;
+﻿using System.Net;
 using AutoMapper;
 using ExamApp.Repositories;
 using ExamApp.Services.Exam;
 using Microsoft.EntityFrameworkCore;
 using ExamApp.Services.Question.Create;
 using ExamApp.Services.Question.Update;
+using ExamApp.Repositories.Questions;
 
 namespace ExamApp.Services.Question
 {
@@ -53,7 +53,7 @@ namespace ExamApp.Services.Question
                 return ServiceResult<CreateQuestionResponseDto>.Fail("Question already exists in this exam.", HttpStatusCode.BadRequest)!;
             }
 
-            var question = mapper.Map<Repositories.Entities.Question>(createQuestionRequest);
+            var question = mapper.Map<Repositories.Questions.Question>(createQuestionRequest);
 
             await questionRepository.AddAsync(question);
             await unitOfWork.SaveChangeAsync();

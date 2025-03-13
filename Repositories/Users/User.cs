@@ -1,6 +1,6 @@
 ﻿using ExamApp.Repositories.Enums;
 
-namespace ExamApp.Repositories.Entities
+namespace ExamApp.Repositories.Users
 {
     public class User
     {

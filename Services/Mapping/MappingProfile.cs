@@ -20,30 +20,30 @@ namespace ExamApp.Services.Mapping
         public MappingProfile()
         {
             //User Mapping
-            CreateMap<Repositories.Entities.User, UserResponseDto>();
-            CreateMap<CreateUserRequestDto, Repositories.Entities.User>();
-            CreateMap<UpdateUserRequestDto, Repositories.Entities.User>();
+            CreateMap<Repositories.Users.User, UserResponseDto>();
+            CreateMap<CreateUserRequestDto, Repositories.Users.User>();
+            CreateMap<UpdateUserRequestDto, Repositories.Users.User>();
 
             //Question Mapping
-            CreateMap<Repositories.Entities.Question, QuestionResponseDto>();
-            CreateMap<CreateQuestionRequestDto, Repositories.Entities.Question>();
-            CreateMap<UpdateQuestionRequestDto, Repositories.Entities.Question>();
-            CreateMap<Repositories.Entities.Question, QuestionResponseWithoutCorrectAnswerDto>();
+            CreateMap<Repositories.Questions.Question, QuestionResponseDto>();
+            CreateMap<CreateQuestionRequestDto, Repositories.Questions.Question>();
+            CreateMap<UpdateQuestionRequestDto, Repositories.Questions.Question>();
+            CreateMap<Repositories.Questions.Question, QuestionResponseWithoutCorrectAnswerDto>();
 
             //ExamResult Mapping
-            CreateMap<Repositories.Entities.ExamResult, ExamResultResponseDto>();
+            CreateMap<Repositories.ExamResults.ExamResult, ExamResultResponseDto>();
 
             //Exam Mapping
-            CreateMap<CreateExamRequestDto, Repositories.Entities.Exam>();
-            CreateMap<UpdateExamRequestDto, Repositories.Entities.Exam>();
-            CreateMap<Repositories.Entities.Exam, ExamWithQuestionsResponseDto>();
-            CreateMap<Repositories.Entities.Exam, ExamWithInstructorResponseDto>();
-            CreateMap<Repositories.Entities.Exam, ExamWithDetailsResponseDto>();
+            CreateMap<CreateExamRequestDto, Repositories.Exams.Exam>();
+            CreateMap<UpdateExamRequestDto, Repositories.Exams.Exam>();
+            CreateMap<Repositories.Exams.Exam, ExamWithQuestionsResponseDto>();
+            CreateMap<Repositories.Exams.Exam, ExamWithInstructorResponseDto>();
+            CreateMap<Repositories.Exams.Exam, ExamWithDetailsResponseDto>();
 
             //Answer Mapping
-            CreateMap<Repositories.Entities.Answer, AnswerResponseDto>();
-            CreateMap<CreateAnswerRequestDto, Repositories.Entities.Answer>();
-            CreateMap<UpdateAnswerRequestDto, Repositories.Entities.Answer>();
+            CreateMap<Repositories.Answers.Answer, AnswerResponseDto>();
+            CreateMap<CreateAnswerRequestDto, Repositories.Answers.Answer>();
+            CreateMap<UpdateAnswerRequestDto, Repositories.Answers.Answer>();
         }
     }
 }

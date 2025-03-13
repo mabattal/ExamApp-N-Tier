@@ -1,4 +1,8 @@
-﻿using ExamApp.Repositories.Repositories;
+﻿using ExamApp.Repositories.Answers;
+using ExamApp.Repositories.ExamResults;
+using ExamApp.Repositories.Exams;
+using ExamApp.Repositories.Questions;
+using ExamApp.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

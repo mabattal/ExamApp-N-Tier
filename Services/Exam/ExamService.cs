@@ -1,5 +1,4 @@
 ﻿using ExamApp.Repositories;
-using ExamApp.Repositories.Repositories;
 using ExamApp.Services.Exam.Create;
 using ExamApp.Services.Exam.Update;
 using ExamApp.Services.Question;
@@ -7,6 +6,7 @@ using ExamApp.Services.User;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using AutoMapper;
+using ExamApp.Repositories.Exams;
 
 namespace ExamApp.Services.Exam
 {
@@ -40,7 +40,7 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
             }
 
-            var exam = mapper.Map<Repositories.Entities.Exam>(examRequest);
+            var exam = mapper.Map<Repositories.Exams.Exam>(examRequest);
             exam.StartDate = dateTimeService.ConvertToUtc(examRequest.StartDate);
             exam.EndDate = dateTimeService.ConvertToUtc(examRequest.EndDate);
             exam.IsDeleted = false;

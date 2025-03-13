@@ -1,6 +1,4 @@
-﻿using ExamApp.Repositories.Entities;
-
-namespace ExamApp.Repositories.Repositories
+﻿namespace ExamApp.Repositories.Answers
 {
     public interface IAnswerRepository : IGenericRepository<Answer>
     {

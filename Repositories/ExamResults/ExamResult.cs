@@ -1,4 +1,7 @@
-﻿namespace ExamApp.Repositories.Entities
+﻿using ExamApp.Repositories.Exams;
+using ExamApp.Repositories.Users;
+
+namespace ExamApp.Repositories.ExamResults
 {
     public class ExamResult
     {

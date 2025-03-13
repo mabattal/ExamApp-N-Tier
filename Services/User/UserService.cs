@@ -2,7 +2,7 @@
 using AutoMapper;
 using ExamApp.Repositories;
 using ExamApp.Repositories.Enums;
-using ExamApp.Repositories.Repositories;
+using ExamApp.Repositories.Users;
 using ExamApp.Services.User.Create;
 using ExamApp.Services.User.Update;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +40,7 @@ namespace ExamApp.Services.User
 
         public async Task<ServiceResult<UserResponseDto?>> GetByIdOrEmailAsync(string value)
         {
-            Repositories.Entities.User? user = null;
+            Repositories.Users.User? user = null;
 
             if (int.TryParse(value, out int id))
             {
@@ -81,7 +81,7 @@ namespace ExamApp.Services.User
                 return ServiceResult<CreateUserResponseDto>.Fail("E-mail address already exists", HttpStatusCode.BadRequest);
             }
 
-            var user = mapper.Map<Repositories.Entities.User>(createUserRequest);
+            var user = mapper.Map<Repositories.Users.User>(createUserRequest);
             user.IsDeleted = false;
 
             await userRepository.AddAsync(user);

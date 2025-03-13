@@ -1,4 +1,6 @@
-﻿namespace ExamApp.Repositories.Entities
+﻿using ExamApp.Repositories.Exams;
+
+namespace ExamApp.Repositories.Questions
 {
     public class Question
     {

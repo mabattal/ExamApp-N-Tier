@@ -1,5 +1,4 @@
 ﻿using ExamApp.Repositories;
-using ExamApp.Repositories.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using AutoMapper;
@@ -7,7 +6,7 @@ using ExamApp.Services.Answer;
 using ExamApp.Services.Exam;
 using ExamApp.Services.Question;
 using ExamApp.Services.User;
-using ExamApp.Repositories.Entities;
+using ExamApp.Repositories.ExamResults;
 
 namespace ExamApp.Services.ExamResult
 {
@@ -107,7 +106,7 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
             }
 
-            var examResult = new Repositories.Entities.ExamResult()
+            var examResult = new Repositories.ExamResults.ExamResult()
             {
                 UserId = userId,
                 ExamId = examId,

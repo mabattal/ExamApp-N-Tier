@@ -1,8 +1,7 @@
-﻿using ExamApp.Repositories.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ExamApp.Repositories.Configurations
+namespace ExamApp.Repositories.Exams
 {
     public class ExamConfiguration : IEntityTypeConfiguration<Exam>
     {

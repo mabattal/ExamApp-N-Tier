@@ -1,6 +1,4 @@
-﻿using ExamApp.Repositories.Entities;
-
-namespace ExamApp.Repositories.Repositories
+﻿namespace ExamApp.Repositories.Questions
 {
     public class QuestionRepository(AppDbContext context) : GenericRepository<Question>(context), IQuestionRepository
     {

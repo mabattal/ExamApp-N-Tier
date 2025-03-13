@@ -1,7 +1,6 @@
-﻿using ExamApp.Repositories.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace ExamApp.Repositories.Repositories
+namespace ExamApp.Repositories.Exams
 {
     public class ExamRepository(AppDbContext context) : GenericRepository<Exam>(context), IExamRepository
     {

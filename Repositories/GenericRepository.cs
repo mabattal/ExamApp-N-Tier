@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace ExamApp.Repositories.Repositories
+namespace ExamApp.Repositories
 {
     public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> where T : class
     {

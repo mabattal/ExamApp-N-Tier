@@ -1,5 +1,9 @@
 ﻿using System.Reflection;
-using ExamApp.Repositories.Entities;
+using ExamApp.Repositories.Answers;
+using ExamApp.Repositories.ExamResults;
+using ExamApp.Repositories.Exams;
+using ExamApp.Repositories.Questions;
+using ExamApp.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExamApp.Repositories

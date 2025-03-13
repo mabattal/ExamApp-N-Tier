@@ -1,6 +1,4 @@
-﻿using ExamApp.Repositories.Entities;
-
-namespace ExamApp.Repositories.Repositories
+﻿namespace ExamApp.Repositories.Users
 {
     public class UserRepository(AppDbContext context) : GenericRepository<User>(context), IUserRepository
     {

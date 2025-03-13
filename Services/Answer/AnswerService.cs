@@ -1,5 +1,4 @@
 ﻿using ExamApp.Repositories;
-using ExamApp.Repositories.Repositories;
 using ExamApp.Services.Answer.Create;
 using ExamApp.Services.Answer.Update;
 using ExamApp.Services.Exam;
@@ -8,6 +7,7 @@ using ExamApp.Services.Question;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using AutoMapper;
+using ExamApp.Repositories.Answers;
 
 namespace ExamApp.Services.Answer
 {
@@ -69,7 +69,7 @@ namespace ExamApp.Services.Answer
                 ? null
                 : createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
-            var answer = mapper.Map<Repositories.Entities.Answer>(createAnswerRequest);
+            var answer = mapper.Map<Repositories.Answers.Answer>(createAnswerRequest);
             answer.CreatedDate = DateTime.UtcNow;
             answer.IsCorrect = isCorrect;
 
