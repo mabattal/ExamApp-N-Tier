@@ -6,8 +6,6 @@ using ExamApp.Services.User;
 
 namespace ExamApp.API.Controllers
 {
-    [Route("api/auth")]
-    [ApiController]
     public class AuthController(IUserService userService, JwtService jwtService) : CustomBaseController
     {
         [HttpPost("login")]
