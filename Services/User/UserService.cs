@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using AutoMapper;
 using ExamApp.Repositories;
 using ExamApp.Repositories.Enums;
@@ -133,6 +135,22 @@ namespace ExamApp.Services.User
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
 
-        
+        public async Task<UserResponseDto?> ValidateUserAsync(string email, string password)
+        {
+            var user = await userRepository.Where(u => u.Email == email && !u.IsDeleted).SingleOrDefaultAsync();
+            if (user is null || !VerifyPassword(password, user.Password))
+            {
+                return null; // Kullanıcı bulunamazsa veya şifre yanlışsa null döndür
+            }
+
+            return new UserResponseDto(user.UserId, user.FullName, user.Email, user.Role, user.IsDeleted);
+        }
+
+        private bool VerifyPassword(string password, string storedHash)
+        {
+            using var sha256 = SHA256.Create();
+            var hashedPassword = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            return hashedPassword == storedHash;
+        }
     }
 }

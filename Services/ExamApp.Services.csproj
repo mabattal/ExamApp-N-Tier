@@ -10,6 +10,7 @@
 	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
 	  <PackageReference Include="AutoMapper" Version="14.0.0" />
 	  <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
 	  <ProjectReference Include="..\Repositories\ExamApp.Repositories.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using ExamApp.Services.Answer;
+using ExamApp.Services.Authentication;
 using ExamApp.Services.Exam;
 using ExamApp.Services.ExamResult;
 using ExamApp.Services.Question;
@@ -27,6 +28,7 @@ namespace ExamApp.Services.Extensions
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddScoped<IDateTimeUtcConversionService, DateTimeUtcConversionService>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddScoped<JwtService>();
 
             return services;
         }
