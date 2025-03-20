@@ -1,26 +1,27 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using ExamApp.Services.Authentication;
-using ExamApp.Services;
+﻿using ExamApp.Services.Authentication;
 using ExamApp.Services.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
-    public class AuthController(IUserService userService, JwtService jwtService) : CustomBaseController
+    [Route("[controller]/[action]")]
+    public class AuthController(IUserService userService, IAuthService authService, JwtService jwtService) : CustomBaseController
     {
         [AllowAnonymous]
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {
-            var user = await userService.ValidateUserAsync(loginRequest.Email, loginRequest.Password);
-            if (user is null)
-            {
-                return CreateActionResult(ServiceResult.Fail("Invalid email or password.", HttpStatusCode.Unauthorized));
-            }
+            var result = await authService.ValidateUserAsync(loginRequest.Email, loginRequest.Password);
+            return CreateActionResult(result);
+        }
 
-            var token = jwtService.GenerateToken(user.UserId, user.Role.ToString());
-            return CreateActionResult(ServiceResult<string>.Success(token));
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] RegisterUserRequestDto request)
+        {
+            var result = await authService.RegisterAsync(request);
+            return CreateActionResult(result);
         }
     }
 }

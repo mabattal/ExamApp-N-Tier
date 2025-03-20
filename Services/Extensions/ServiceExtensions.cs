@@ -29,6 +29,7 @@ namespace ExamApp.Services.Extensions
             services.AddScoped<IDateTimeUtcConversionService, DateTimeUtcConversionService>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddScoped<JwtService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

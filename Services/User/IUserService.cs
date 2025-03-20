@@ -14,7 +14,6 @@ namespace ExamApp.Services.User
         Task<ServiceResult> UpdateAsync(int id, UpdateUserRequestDto updateUserRequest);
         Task<ServiceResult> DeleteAsync(int id);
         Task<ServiceResult<List<UserResponseDto>>> GetByRole(UserRole role);
-        Task<UserResponseDto?> ValidateUserAsync(string email, string password);
 
     }
 }
