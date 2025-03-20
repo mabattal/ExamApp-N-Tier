@@ -5,7 +5,6 @@
         string Description,
         DateTime StartDate,
         DateTime EndDate,
-        int Duration,        // Dakika cinsinden
-        int CreatedBy
+        int Duration
     );
 }

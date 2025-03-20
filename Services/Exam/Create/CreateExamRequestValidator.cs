@@ -22,9 +22,6 @@ namespace ExamApp.Services.Exam.Create
 
             RuleFor(x => x.Duration)
                 .GreaterThan(0).WithMessage("Duration required and must be greater than 0.");
-
-            RuleFor(x => x.CreatedBy)
-                .NotEmpty().WithMessage("CreatedBy required.");
         }
     }
 }

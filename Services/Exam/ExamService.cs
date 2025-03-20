@@ -17,9 +17,9 @@ namespace ExamApp.Services.Exam
         IDateTimeUtcConversionService dateTimeService,
         IMapper mapper) : IExamService
     {
-        public async Task<ServiceResult<CreateExamResponseDto>> AddAsync(CreateExamRequestDto examRequest)
+        public async Task<ServiceResult<CreateExamResponseDto>> AddAsync(CreateExamRequestDto examRequest, int userId)
         {
-            var instructor = await userService.GetInstructorByIdAsync(examRequest.CreatedBy);
+            var instructor = await userService.GetInstructorByIdAsync(userId);
             if (instructor.IsFail)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail(instructor.ErrorMessage!, instructor.Status);
@@ -41,6 +41,7 @@ namespace ExamApp.Services.Exam
             }
 
             var exam = mapper.Map<Repositories.Exams.Exam>(examRequest);
+            exam.CreatedBy = userId;
             exam.StartDate = dateTimeService.ConvertToUtc(examRequest.StartDate);
             exam.EndDate = dateTimeService.ConvertToUtc(examRequest.EndDate);
             exam.IsDeleted = false;
@@ -51,7 +52,7 @@ namespace ExamApp.Services.Exam
             return ServiceResult<CreateExamResponseDto>.Success(new CreateExamResponseDto(exam.ExamId));
         }
 
-        public async Task<ServiceResult> UpdateAsync(int id, UpdateExamRequestDto examRequest)
+        public async Task<ServiceResult> UpdateAsync(int id, UpdateExamRequestDto examRequest, int userId)
         {
             var exam = await examRepository.GetByIdAsync(id);
             if (exam is null)
@@ -59,13 +60,13 @@ namespace ExamApp.Services.Exam
                 return ServiceResult.Fail("Exam not found", HttpStatusCode.NotFound);
             }
 
-            var instructor = await userService.GetInstructorByIdAsync(examRequest.CreatedBy);
+            var instructor = await userService.GetInstructorByIdAsync(userId);
             if (instructor.IsFail)
             {
                 return ServiceResult.Fail(instructor.ErrorMessage!, instructor.Status);
             }
 
-            if (exam.CreatedBy != examRequest.CreatedBy)
+            if (exam.CreatedBy != userId)
             {
                 return ServiceResult.Fail("You are not authorized to update this exam.", HttpStatusCode.Forbidden);
             }
@@ -95,12 +96,16 @@ namespace ExamApp.Services.Exam
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
-        public async Task<ServiceResult> DeleteAsync(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int userId)
         {
             var exam = await examRepository.GetByIdAsync(id);
             if (exam is null)
             {
                 return ServiceResult.Fail("Exam not found", HttpStatusCode.NotFound);
+            }
+            if (exam.CreatedBy != userId)
+            {
+                return ServiceResult.Fail("You are not authorized to delete this exam.", HttpStatusCode.Forbidden);
             }
             exam.IsDeleted = true;
 
