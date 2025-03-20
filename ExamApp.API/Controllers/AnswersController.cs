@@ -10,7 +10,7 @@ namespace ExamApp.API.Controllers
     [Authorize]
     public class AnswersController(IAnswerService answerService) : CustomBaseController
     {
-
+        [Authorize(Roles = "Student, Instructor, Admin")]
         [HttpGet("{answerId:int}")]
         public async Task<IActionResult> GetById(int answerId)
         {
@@ -18,6 +18,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPost]
         public async Task<IActionResult> Add(CreateAnswerRequestDto createAnswerRequest)
         {
@@ -26,6 +27,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPut("{answerId:int}")]
         public async Task<IActionResult> Update(int answerId, UpdateAnswerRequestDto updateAnswerRequest)
         {
@@ -34,6 +36,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [Authorize(Roles = "Student")]
         [HttpDelete("{answerId:int}")]
         public async Task<IActionResult> Delete(int answerId)
         {
@@ -42,6 +45,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [Authorize(Roles = "Student, Instructor, Admin")]
         [HttpGet("exam/{examId:int}")]
         public async Task<IActionResult> GetByUserAndExam(int examId)
         {
