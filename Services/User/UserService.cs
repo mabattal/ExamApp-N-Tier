@@ -2,6 +2,7 @@
 using ExamApp.Repositories;
 using ExamApp.Repositories.Enums;
 using ExamApp.Repositories.Users;
+using ExamApp.Services.Helpers;
 using ExamApp.Services.User.Create;
 using ExamApp.Services.User.Update;
 using Microsoft.EntityFrameworkCore;
@@ -81,8 +82,10 @@ namespace ExamApp.Services.User
                 return ServiceResult<CreateUserResponseDto>.Fail("E-mail address already exists", HttpStatusCode.BadRequest);
             }
 
+            var hashedPassword = PasswordHasher.Hash(createUserRequest.Password);
             var user = mapper.Map<Repositories.Users.User>(createUserRequest);
             user.IsDeleted = false;
+            user.Password = hashedPassword;
 
             await userRepository.AddAsync(user);
             await unitOfWork.SaveChangeAsync();
@@ -103,7 +106,9 @@ namespace ExamApp.Services.User
                 return ServiceResult.Fail("E-mail address already exists", HttpStatusCode.BadRequest);
             }
 
+            var hashedPassword = PasswordHasher.Hash(updateUserRequest.Password);
             user = mapper.Map(updateUserRequest, user);
+            user.Password = hashedPassword;
 
             userRepository.Update(user);
             await unitOfWork.SaveChangeAsync();

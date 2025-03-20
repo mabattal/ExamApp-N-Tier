@@ -5,11 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
-    [Route("[controller]/[action]")]
     public class AuthController(IUserService userService, IAuthService authService, JwtService jwtService) : CustomBaseController
     {
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {
             var result = await authService.ValidateUserAsync(loginRequest.Email, loginRequest.Password);
@@ -17,7 +16,7 @@ namespace ExamApp.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequestDto request)
         {
             var result = await authService.RegisterAsync(request);
