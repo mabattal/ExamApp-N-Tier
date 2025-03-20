@@ -1,5 +1,7 @@
 ﻿using ExamApp.Services.Authentication;
 using ExamApp.Services.User;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +23,15 @@ namespace ExamApp.API.Controllers
         {
             var result = await authService.RegisterAsync(request);
             return CreateActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost("Logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync(JwtBearerDefaults.AuthenticationScheme);
+
+            return Ok(new { message = "Successfully logged out" });
         }
     }
 }
