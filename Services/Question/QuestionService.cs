@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ExamApp.Services.Question.Create;
 using ExamApp.Services.Question.Update;
 using ExamApp.Repositories.Questions;
+using ExamApp.Repositories.Users;
 
 namespace ExamApp.Services.Question
 {
@@ -34,12 +35,17 @@ namespace ExamApp.Services.Question
             return ServiceResult<QuestionResponseDto>.Success(questionAsDto)!;
         }
 
-        public async Task<ServiceResult<CreateQuestionResponseDto>> AddAsync(CreateQuestionRequestDto createQuestionRequest)
+        public async Task<ServiceResult<CreateQuestionResponseDto>> AddAsync(CreateQuestionRequestDto createQuestionRequest, int userId)
         {
             var exam = await examService.GetByIdAsync(createQuestionRequest.ExamId);
             if (exam.IsFail)
             {
                 return ServiceResult<CreateQuestionResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
+            }
+
+            if (exam.Data!.Instructor.UserId != userId)
+            {
+                return ServiceResult<CreateQuestionResponseDto>.Fail("You are not authorized to add a question to this exam.", HttpStatusCode.Unauthorized)!;
             }
 
             if (DateTime.Now > exam.Data!.StartDate)
@@ -61,12 +67,17 @@ namespace ExamApp.Services.Question
             return ServiceResult<CreateQuestionResponseDto>.Success(new CreateQuestionResponseDto(question.QuestionId));
         }
 
-        public async Task<ServiceResult> UpdateAsync(int id, UpdateQuestionRequestDto updateQuestionRequest)
+        public async Task<ServiceResult> UpdateAsync(int id, UpdateQuestionRequestDto updateQuestionRequest, int userId)
         {
             var question = await questionRepository.GetByIdAsync(id);
             if (question is null)
             {
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
+            }
+
+            if (question.Exam.Instructor.UserId != userId)
+            {
+                return ServiceResult.Fail("You are not authorized to update this question.", HttpStatusCode.Unauthorized);
             }
 
             if (DateTime.Now > question.Exam.StartDate)
@@ -88,12 +99,17 @@ namespace ExamApp.Services.Question
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }
 
-        public async Task<ServiceResult> DeleteAsync(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int userId)
         {
             var question = await questionRepository.GetByIdAsync(id);
             if (question is null)
             {
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
+            }
+
+            if (question.Exam.Instructor.UserId != userId)
+            {
+                return ServiceResult.Fail("You are not authorized to update this question.", HttpStatusCode.Unauthorized);
             }
 
             if (DateTime.Now > question.Exam.StartDate)
