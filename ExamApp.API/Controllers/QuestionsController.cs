@@ -1,10 +1,12 @@
 ﻿using ExamApp.Services.Question;
 using ExamApp.Services.Question.Create;
 using ExamApp.Services.Question.Update;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
+    [Authorize(Roles = "Instructor, Admin, Student")]
     public class QuestionsController(IQuestionService _questionService) : CustomBaseController
     {
         [HttpGet("{questionId:int}")]

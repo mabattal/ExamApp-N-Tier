@@ -1,8 +1,10 @@
 ﻿using ExamApp.Services.ExamResult;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
+    [Authorize(Roles = "Instructor, Admin, Student")]
     public class ExamResultsController(IExamResultService _examResultService) : CustomBaseController
     {
         [HttpGet("{id:int}")]

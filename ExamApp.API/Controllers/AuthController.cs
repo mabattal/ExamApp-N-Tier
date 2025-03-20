@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using ExamApp.Services.Authentication;
 using ExamApp.Services;
 using ExamApp.Services.User;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExamApp.API.Controllers
 {
     public class AuthController(IUserService userService, JwtService jwtService) : CustomBaseController
     {
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {

@@ -1,10 +1,12 @@
 ﻿using ExamApp.Services.Answer;
 using ExamApp.Services.Answer.Create;
 using ExamApp.Services.Answer.Update;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
+    [Authorize(Roles = "Instructor, Admin, Student")]
     public class AnswersController(IAnswerService answerService) : CustomBaseController
     {
 

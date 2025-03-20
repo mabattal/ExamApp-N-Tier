@@ -1,10 +1,12 @@
 ﻿using ExamApp.Services.Exam;
 using ExamApp.Services.Exam.Create;
 using ExamApp.Services.Exam.Update;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExamApp.API.Controllers
 {
+    [Authorize(Roles = "Instructor, Admin, Student")]
     public class ExamsController(IExamService _examService) : CustomBaseController
     {
         [HttpGet("instructor/{instructorId:int}")]
