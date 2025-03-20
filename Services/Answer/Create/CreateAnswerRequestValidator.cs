@@ -6,9 +6,6 @@ namespace ExamApp.Services.Answer.Create
     {
         public CreateAnswerRequestValidator()
         {
-            RuleFor(x => x.UserId)
-                .GreaterThan(0).WithMessage("UserId required and must be greater than 0.");
-
             RuleFor(x => x.ExamId)
                 .GreaterThan(0).WithMessage("ExamId required and must be greater than 0.");
 

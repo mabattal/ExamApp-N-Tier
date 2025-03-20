@@ -20,7 +20,7 @@ namespace ExamApp.Services.Answer
         IDateTimeUtcConversionService dateTimeService,
         IMapper mapper) : IAnswerService
     {
-        public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest)
+        public async Task<ServiceResult<CreateAnswerResponseDto>> AddAsync(CreateAnswerRequestDto createAnswerRequest, int userId)
         {
             var exam = await examService.GetByIdAsync(createAnswerRequest.ExamId);
             if (exam.IsFail)
@@ -28,7 +28,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            var examResult = await examResultService.Value.GetByUserAndExam(createAnswerRequest.UserId, createAnswerRequest.ExamId);
+            var examResult = await examResultService.Value.GetByUserAndExam(userId, createAnswerRequest.ExamId);
             if (examResult.IsFail)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not been started for this user.", HttpStatusCode.NotFound);
@@ -45,7 +45,7 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Question does not belong to the exam.", HttpStatusCode.BadRequest);
             }
 
-            var existingAnswer = await answerRepository.GetByUserAndQuestion(createAnswerRequest.UserId, createAnswerRequest.QuestionId).AnyAsync();
+            var existingAnswer = await answerRepository.GetByUserAndQuestion(userId, createAnswerRequest.QuestionId).AnyAsync();
             if (existingAnswer)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Answer already exists", HttpStatusCode.BadRequest);
@@ -70,6 +70,7 @@ namespace ExamApp.Services.Answer
                 : createAnswerRequest.SelectedAnswer.Equals(question.Data.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
             var answer = mapper.Map<Repositories.Answers.Answer>(createAnswerRequest);
+            answer.UserId = userId;
             answer.CreatedDate = DateTime.UtcNow;
             answer.IsCorrect = isCorrect;
 
@@ -79,12 +80,17 @@ namespace ExamApp.Services.Answer
             return ServiceResult<CreateAnswerResponseDto>.Success(new CreateAnswerResponseDto(answer.AnswerId));
         }
 
-        public async Task<ServiceResult> UpdateAsync(int id, UpdateAnswerRequestDto request)
+        public async Task<ServiceResult> UpdateAsync(int id, UpdateAnswerRequestDto request, int userId)
         {
             var answer = await answerRepository.GetByIdWithDetailsAsync(id);
             if (answer is null)
             {
                 return ServiceResult.Fail("Answer not found", HttpStatusCode.NotFound);
+            }
+
+            if (answer.UserId != userId)
+            {
+                return ServiceResult.Fail("You are not authorized to update this answer.", HttpStatusCode.Unauthorized);
             }
 
             var exam = await examService.GetByIdAsync(answer.Question!.ExamId);
@@ -151,13 +157,19 @@ namespace ExamApp.Services.Answer
             return ServiceResult<AnswerResponseDto>.Success(answerAsDto)!;
         }
 
-        public async Task<ServiceResult> DeleteAsync(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int userId)
         {
             var answer = await answerRepository.GetByIdAsync(id);
             if (answer is null)
             {
                 return ServiceResult.Fail("Answer not found", HttpStatusCode.NotFound);
             }
+
+            if (answer.UserId != userId)
+            {
+                return ServiceResult.Fail("You are not authorized to delete this answer.", HttpStatusCode.Unauthorized);
+            }
+
             answerRepository.Delete(answer);
             await unitOfWork.SaveChangeAsync();
             return ServiceResult.Success(HttpStatusCode.NoContent);
