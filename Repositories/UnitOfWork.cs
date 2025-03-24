@@ -1,4 +1,6 @@
-﻿namespace ExamApp.Repositories
+﻿using ExamApp.Repositories.Database;
+
+namespace ExamApp.Repositories
 {
     public class UnitOfWork(AppDbContext context) : IUnitOfWork
     {

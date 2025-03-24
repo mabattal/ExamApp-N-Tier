@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ExamApp.Repositories.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExamApp.Repositories.ExamResults
 {

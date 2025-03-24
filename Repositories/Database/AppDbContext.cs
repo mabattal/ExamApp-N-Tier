@@ -6,7 +6,7 @@ using ExamApp.Repositories.Questions;
 using ExamApp.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExamApp.Repositories
+namespace ExamApp.Repositories.Database
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
