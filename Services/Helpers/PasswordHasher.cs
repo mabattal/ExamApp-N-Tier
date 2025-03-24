@@ -5,6 +5,7 @@ namespace ExamApp.Services.Helpers
 {
     public static class PasswordHasher
     {
+        //AppDbContextSeed de aynı fonksiyon var. Bu fonksiyonu değiştirmek isterseniz orayı da değiştirmeniz gerekmektedir.
         public static string Hash(string password)
         {
             byte[] salt = new byte[16];

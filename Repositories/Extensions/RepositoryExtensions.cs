@@ -31,8 +31,14 @@ namespace ExamApp.Repositories.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IExamResultRepository, ExamResultRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // **Veritabanı Seed İşlemi**
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                AppDbContextSeed.SeedAsync(dbContext).Wait();
+            }
 
             return services;
         }
