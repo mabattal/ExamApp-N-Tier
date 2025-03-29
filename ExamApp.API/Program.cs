@@ -1,3 +1,4 @@
+using ExamApp.API.Extensions;
 using ExamApp.Repositories.Extensions;
 using ExamApp.Services;
 using ExamApp.Services.Extensions;
@@ -82,19 +83,9 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
-var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: myAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200")  // Angular uygulamasýnýn adresi
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-});
-
+//Cors ayarlarýný ekledik
+//bu ayarý yapma sebebimiz, client tarafýnda farklý bir domainde çalýþan uygulamalarýn bu apiye eriþebilmesi için
+builder.Services.AddCustomCors(builder.Configuration);
 
 var app = builder.Build();
 
@@ -115,7 +106,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCors(myAllowSpecificOrigins);
+app.UseCustomCors();
 
 app.MapControllers();
 
