@@ -82,6 +82,19 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")  // Angular uygulamasýnýn adresi
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
+
 
 var app = builder.Build();
 
@@ -101,6 +114,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseCors(myAllowSpecificOrigins);
 
 app.MapControllers();
 
