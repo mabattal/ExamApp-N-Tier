@@ -11,7 +11,7 @@ namespace ExamApp.Repositories.Users
             builder.Property(u => u.Email).IsRequired().HasMaxLength(150);
             builder.Property(u => u.Password).IsRequired();
             builder.Property(u => u.Role).IsRequired();
-            builder.HasQueryFilter(u => !u.IsDeleted);
+            //builder.HasQueryFilter(u => !u.IsDeleted);
             builder.Property(u => u.FullName).HasMaxLength(100);
         }
     }

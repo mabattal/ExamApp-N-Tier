@@ -1,7 +1,5 @@
 ﻿using ExamApp.Services.Authentication;
 using ExamApp.Services.User;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,8 +27,7 @@ namespace ExamApp.API.Controllers
         [HttpPost("Logout")]
         public IActionResult Logout()
         {
-            HttpContext.SignOutAsync(JwtBearerDefaults.AuthenticationScheme);
-
+            //kullanıcıyı logout yapmak için client tarafında token'ı sıfırlamak yeterli olacaktır
             return Ok(new { message = "Successfully logged out" });
         }
     }

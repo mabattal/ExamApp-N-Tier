@@ -34,7 +34,8 @@ namespace ExamApp.Services.User
             // 3 - 10 => 21, 30 kayıt    skip(20).take(10)
             // 4 - 10 => 31, 40 kayıt    skip(30).take(10)
 
-            var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            //var users = await userRepository.GetAll().Where(u => u.IsDeleted != true).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            var users = await userRepository.GetAll().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
             var userAsDto = mapper.Map<List<UserResponseDto>>(users);
             return ServiceResult<List<UserResponseDto>>.Success(userAsDto);
         }
