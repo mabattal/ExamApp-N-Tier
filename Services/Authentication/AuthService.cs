@@ -23,7 +23,7 @@ namespace ExamApp.Services.Authentication
 
             var token = jwtService.GenerateToken(user.UserId, user.Role.ToString());
 
-            return ServiceResult<UserTokenResponseDto>.Success(new UserTokenResponseDto(token, user.Role.ToString(), user.FullName!));
+            return ServiceResult<UserTokenResponseDto>.Success(new UserTokenResponseDto(token, user.Role.ToString(), user.FullName!, user.Email, user.UserId));
         }
 
         public async Task<ServiceResult> RegisterAsync(RegisterUserRequestDto request)
