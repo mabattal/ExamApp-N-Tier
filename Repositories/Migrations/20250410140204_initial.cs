@@ -17,8 +17,9 @@ namespace ExamApp.Repositories.Migrations
                 {
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -38,7 +39,8 @@ namespace ExamApp.Repositories.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false)
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,7 +49,8 @@ namespace ExamApp.Repositories.Migrations
                         name: "FK_Exams_Users_CreatedBy",
                         column: x => x.CreatedBy,
                         principalTable: "Users",
-                        principalColumn: "UserId");
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,11 +61,14 @@ namespace ExamApp.Repositories.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ExamId = table.Column<int>(type: "int", nullable: false),
-                    Score = table.Column<int>(type: "int", nullable: false),
-                    CompletionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Duration = table.Column<int>(type: "int", nullable: true),
                     TotalQuestions = table.Column<int>(type: "int", nullable: false),
-                    CorrectAnswers = table.Column<int>(type: "int", nullable: false),
-                    IncorrectAnswers = table.Column<int>(type: "int", nullable: false)
+                    CorrectAnswers = table.Column<int>(type: "int", nullable: true),
+                    IncorrectAnswers = table.Column<int>(type: "int", nullable: true),
+                    EmptyAnswers = table.Column<int>(type: "int", nullable: true),
+                    Score = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -93,7 +99,7 @@ namespace ExamApp.Repositories.Migrations
                     OptionB = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     OptionC = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     OptionD = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CorrectAnswer = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false)
+                    CorrectAnswer = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -114,8 +120,9 @@ namespace ExamApp.Repositories.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     QuestionId = table.Column<int>(type: "int", nullable: false),
-                    SelectedAnswer = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
-                    IsCorrect = table.Column<bool>(type: "bit", nullable: false)
+                    SelectedAnswer = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsCorrect = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExamApp.Repositories.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250126143411_addFullname")]
-    partial class addFullname
+    [Migration("20250410140204_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace ExamApp.Repositories.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Answer", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Answers.Answer", b =>
                 {
                     b.Property<int>("AnswerId")
                         .ValueGeneratedOnAdd()
@@ -33,16 +33,18 @@ namespace ExamApp.Repositories.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnswerId"));
 
-                    b.Property<bool>("IsCorrect")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsCorrect")
                         .HasColumnType("bit");
 
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
                     b.Property<string>("SelectedAnswer")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -56,7 +58,55 @@ namespace ExamApp.Repositories.Migrations
                     b.ToTable("Answers");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Exam", b =>
+            modelBuilder.Entity("ExamApp.Repositories.ExamResults.ExamResult", b =>
+                {
+                    b.Property<int>("ResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ResultId"));
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CorrectAnswers")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EmptyAnswers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IncorrectAnswers")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Score")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalQuestions")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ResultId");
+
+                    b.HasIndex("ExamId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ExamResults");
+                });
+
+            modelBuilder.Entity("ExamApp.Repositories.Exams.Exam", b =>
                 {
                     b.Property<int>("ExamId")
                         .ValueGeneratedOnAdd()
@@ -78,6 +128,9 @@ namespace ExamApp.Repositories.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -93,45 +146,7 @@ namespace ExamApp.Repositories.Migrations
                     b.ToTable("Exams");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.ExamResult", b =>
-                {
-                    b.Property<int>("ResultId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ResultId"));
-
-                    b.Property<DateTime>("CompletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CorrectAnswers")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IncorrectAnswers")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalQuestions")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ResultId");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ExamResults");
-                });
-
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Question", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Questions.Question", b =>
                 {
                     b.Property<int>("QuestionId")
                         .ValueGeneratedOnAdd()
@@ -141,8 +156,8 @@ namespace ExamApp.Repositories.Migrations
 
                     b.Property<string>("CorrectAnswer")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
@@ -179,7 +194,7 @@ namespace ExamApp.Repositories.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.User", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Users.User", b =>
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
@@ -193,14 +208,13 @@ namespace ExamApp.Repositories.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -212,15 +226,15 @@ namespace ExamApp.Repositories.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Answer", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Answers.Answer", b =>
                 {
-                    b.HasOne("ExamApp.Repositories.Entities.Question", "Question")
+                    b.HasOne("ExamApp.Repositories.Questions.Question", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ExamApp.Repositories.Entities.User", "User")
+                    b.HasOne("ExamApp.Repositories.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -231,26 +245,15 @@ namespace ExamApp.Repositories.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Exam", b =>
+            modelBuilder.Entity("ExamApp.Repositories.ExamResults.ExamResult", b =>
                 {
-                    b.HasOne("ExamApp.Repositories.Entities.User", "Instructor")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Instructor");
-                });
-
-            modelBuilder.Entity("ExamApp.Repositories.Entities.ExamResult", b =>
-                {
-                    b.HasOne("ExamApp.Repositories.Entities.Exam", "Exam")
+                    b.HasOne("ExamApp.Repositories.Exams.Exam", "Exam")
                         .WithMany()
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ExamApp.Repositories.Entities.User", "User")
+                    b.HasOne("ExamApp.Repositories.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -261,9 +264,20 @@ namespace ExamApp.Repositories.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Question", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Exams.Exam", b =>
                 {
-                    b.HasOne("ExamApp.Repositories.Entities.Exam", "Exam")
+                    b.HasOne("ExamApp.Repositories.Users.User", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Instructor");
+                });
+
+            modelBuilder.Entity("ExamApp.Repositories.Questions.Question", b =>
+                {
+                    b.HasOne("ExamApp.Repositories.Exams.Exam", "Exam")
                         .WithMany("Questions")
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -272,7 +286,7 @@ namespace ExamApp.Repositories.Migrations
                     b.Navigation("Exam");
                 });
 
-            modelBuilder.Entity("ExamApp.Repositories.Entities.Exam", b =>
+            modelBuilder.Entity("ExamApp.Repositories.Exams.Exam", b =>
                 {
                     b.Navigation("Questions");
                 });
