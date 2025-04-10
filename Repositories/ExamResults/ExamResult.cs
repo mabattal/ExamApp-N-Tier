@@ -10,8 +10,8 @@ namespace ExamApp.Repositories.ExamResults
         public User User { get; set; }
         public int ExamId { get; set; }
         public Exam Exam { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public DateTimeOffset? CompletionDate { get; set; }
         public int? Duration { get; set; }
         public int TotalQuestions { get; set; }
         public int? CorrectAnswers { get; set; }

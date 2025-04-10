@@ -1,22 +1,53 @@
 ﻿namespace ExamApp.Services
 {
+    public interface IDateTimeUtcConversionService
+    {
+        DateTimeOffset ConvertToUtc(DateTimeOffset localDateTime);
+        DateTimeOffset ConvertFromUtc(DateTimeOffset utcDateTime);
+    }
+
     public class DateTimeUtcConversionService : IDateTimeUtcConversionService
     {
         private readonly TimeZoneInfo _turkeyTimeZone;
 
         public DateTimeUtcConversionService()
         {
-            _turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            _turkeyTimeZone = GetTurkeyTimeZone();
         }
 
-        public DateTime ConvertToUtc(DateTime dateTime)
+        public DateTimeOffset ConvertToUtc(DateTimeOffset localDateTime)
         {
-            return TimeZoneInfo.ConvertTimeToUtc(dateTime, _turkeyTimeZone);
+            return localDateTime.ToUniversalTime();
         }
 
-        public DateTime ConvertToTurkeyTime(DateTime dateTime)
+        public DateTimeOffset ConvertFromUtc(DateTimeOffset utcDateTime)
         {
-            return TimeZoneInfo.ConvertTimeFromUtc(dateTime, _turkeyTimeZone);
+            // UTC saatini yerel saate dönüştürme
+            //return utcDateTime.ToLocalTime();
+            // UTC'yi Türkiye saat dilimine göre dönüştür
+            var turkeyTime = TimeZoneInfo.ConvertTime(utcDateTime, _turkeyTimeZone);
+            return turkeyTime;
+        }
+
+        private TimeZoneInfo GetTurkeyTimeZone()
+        {
+            try
+            {
+                // Windows sistemlerde
+                return TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                try
+                {
+                    // Linux/macOS sistemlerde
+                    return TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+                }
+                catch (TimeZoneNotFoundException ex)
+                {
+                    throw new Exception("Turkey time zone not found on this system.", ex);
+                }
+            }
         }
     }
 }

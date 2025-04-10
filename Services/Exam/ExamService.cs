@@ -1,12 +1,11 @@
-﻿using ExamApp.Repositories;
+﻿using AutoMapper;
+using ExamApp.Repositories;
+using ExamApp.Repositories.Exams;
 using ExamApp.Services.Exam.Create;
 using ExamApp.Services.Exam.Update;
-using ExamApp.Services.Question;
 using ExamApp.Services.User;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using AutoMapper;
-using ExamApp.Repositories.Exams;
 
 namespace ExamApp.Services.Exam
 {
@@ -35,7 +34,7 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<CreateExamResponseDto>.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
+            if (examRequest.StartDate < DateTimeOffset.UtcNow || examRequest.EndDate < DateTimeOffset.UtcNow)
             {
                 return ServiceResult<CreateExamResponseDto>.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
             }
@@ -81,7 +80,7 @@ namespace ExamApp.Services.Exam
                 return ServiceResult.Fail("Duration cannot be greater than the difference between start and end date.", HttpStatusCode.BadRequest);
             }
 
-            if (examRequest.StartDate < DateTime.Now || examRequest.EndDate < DateTime.Now)
+            if (examRequest.StartDate < DateTimeOffset.UtcNow || examRequest.EndDate < DateTimeOffset.UtcNow)
             {
                 return ServiceResult.Fail("Start date and end date must be greater than the current date.", HttpStatusCode.BadRequest);
             }
@@ -125,8 +124,8 @@ namespace ExamApp.Services.Exam
             var exams = await examRepository.GetByInstructor(instructorId).ToListAsync();
             var examAsDto = exams.Select(e =>
             {
-                e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
-                e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
+                e.StartDate = dateTimeService.ConvertFromUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertFromUtc(e.EndDate);
                 var dto = mapper.Map<ExamWithQuestionsResponseDto>(e);
                 e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
                 e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
@@ -146,8 +145,8 @@ namespace ExamApp.Services.Exam
 
             var examAsDto = exams.Select(e =>
             {
-                e.StartDate = dateTimeService.ConvertToTurkeyTime(e.StartDate);
-                e.EndDate = dateTimeService.ConvertToTurkeyTime(e.EndDate);
+                e.StartDate = dateTimeService.ConvertFromUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertFromUtc(e.EndDate);
                 var dto = mapper.Map<ExamWithInstructorResponseDto>(e);
                 e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
                 e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
@@ -165,8 +164,8 @@ namespace ExamApp.Services.Exam
                 return ServiceResult<ExamWithDetailsResponseDto?>.Fail("Exam not found", HttpStatusCode.NotFound);
             }
 
-            exam.StartDate = dateTimeService.ConvertToTurkeyTime(exam.StartDate);
-            exam.EndDate = dateTimeService.ConvertToTurkeyTime(exam.EndDate);
+            exam.StartDate = dateTimeService.ConvertFromUtc(exam.StartDate);
+            exam.EndDate = dateTimeService.ConvertFromUtc(exam.EndDate);
             var examAsDto = mapper.Map<ExamWithDetailsResponseDto>(exam);
             exam.StartDate = dateTimeService.ConvertToUtc(exam.StartDate);
             exam.EndDate = dateTimeService.ConvertToUtc(exam.EndDate);

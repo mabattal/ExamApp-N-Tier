@@ -51,15 +51,15 @@ namespace ExamApp.Services.Answer
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Answer already exists", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data!.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTimeOffset.Now)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
             // Kullanıcı için sınav süresi mi doldu, yoksa sınav zaten bitti mi?
-            var examEndTime = dateTimeService.ConvertToTurkeyTime(examResult.Data!.StartDate).AddMinutes(exam.Data.Duration);
+            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
-            if (DateTime.Now > finalExamEndTime)
+            if (DateTimeOffset.UtcNow > finalExamEndTime)
             {
                 return ServiceResult<CreateAnswerResponseDto>.Fail("Exam time is up! You cannot submit answers.", HttpStatusCode.BadRequest);
             }
@@ -71,7 +71,7 @@ namespace ExamApp.Services.Answer
 
             var answer = mapper.Map<Repositories.Answers.Answer>(createAnswerRequest);
             answer.UserId = userId;
-            answer.CreatedDate = DateTime.UtcNow;
+            answer.CreatedDate = DateTimeOffset.UtcNow;
             answer.IsCorrect = isCorrect;
 
             await answerRepository.AddAsync(answer);
@@ -116,14 +116,14 @@ namespace ExamApp.Services.Answer
                 return ServiceResult.Fail(question.ErrorMessage!, question.Status);
             }
 
-            if (exam.Data!.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTimeOffset.UtcNow)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            var examEndTime = dateTimeService.ConvertToTurkeyTime(examResult.Data!.StartDate).AddMinutes(exam.Data.Duration);
+            var examEndTime = examResult.Data!.StartDate.AddMinutes(exam.Data.Duration);
             var finalExamEndTime = exam.Data.EndDate < examEndTime ? exam.Data.EndDate : examEndTime;
-            if (DateTime.Now > finalExamEndTime)
+            if (DateTimeOffset.UtcNow > finalExamEndTime)
             {
                 return ServiceResult.Fail("Exam has already ended", HttpStatusCode.BadRequest);
             }
@@ -133,7 +133,7 @@ namespace ExamApp.Services.Answer
                             request.SelectedAnswer.Equals(question.Data!.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
             
             mapper.Map(request, answer);
-            answer.CreatedDate = DateTime.UtcNow;
+            answer.CreatedDate = DateTimeOffset.UtcNow;
             answer.IsCorrect = isCorrect;
 
             answerRepository.Update(answer);
@@ -150,7 +150,7 @@ namespace ExamApp.Services.Answer
             {
                 return ServiceResult<AnswerResponseDto>.Fail("Answer not found", HttpStatusCode.NotFound)!;
             }
-            answer.CreatedDate = dateTimeService.ConvertToTurkeyTime(answer.CreatedDate);
+            answer.CreatedDate = dateTimeService.ConvertFromUtc(answer.CreatedDate);
             var answerAsDto = mapper.Map<AnswerResponseDto>(answer);
             answer.CreatedDate = dateTimeService.ConvertToUtc(answer.CreatedDate);
 
@@ -185,7 +185,7 @@ namespace ExamApp.Services.Answer
 
             var answerAsDto = answers.Select(a =>
             {
-                a.CreatedDate = dateTimeService.ConvertToTurkeyTime(a.CreatedDate);
+                a.CreatedDate = dateTimeService.ConvertFromUtc(a.CreatedDate);
                 var dto = mapper.Map<AnswerResponseDto>(a);
                 a.CreatedDate = dateTimeService.ConvertToUtc(a.CreatedDate);
                 return dto;

@@ -6,8 +6,8 @@ namespace ExamApp.Services.Exam
         int ExamId,
         string Title,
         string Description,
-        DateTime StartDate,
-        DateTime EndDate,
+        DateTimeOffset StartDate,
+        DateTimeOffset EndDate,
         int Duration,
         UserResponseDto Instructor
     );

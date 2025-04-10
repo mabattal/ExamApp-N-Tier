@@ -33,8 +33,8 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
             }
 
-            examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
-            examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
+            examResult.StartDate = dateTimeService.ConvertFromUtc(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertFromUtc(examResult.CompletionDate.Value);
             var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
             examResult.StartDate = dateTimeService.ConvertToUtc(examResult.StartDate);
             examResult.CompletionDate = dateTimeService.ConvertToUtc(examResult.CompletionDate.Value);
@@ -55,8 +55,8 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
             }
 
-            examResult.StartDate = dateTimeService.ConvertToTurkeyTime(examResult.StartDate);
-            examResult.CompletionDate = dateTimeService.ConvertToTurkeyTime(examResult.CompletionDate.Value);
+            examResult.StartDate = dateTimeService.ConvertFromUtc(examResult.StartDate);
+            examResult.CompletionDate = dateTimeService.ConvertFromUtc(examResult.CompletionDate.Value);
             var examResultAsDto = mapper.Map<ExamResultResponseDto>(examResult);
             examResult.StartDate = dateTimeService.ConvertToUtc(examResult.StartDate);
             examResult.CompletionDate = dateTimeService.ConvertToUtc(examResult.CompletionDate.Value);
@@ -96,12 +96,12 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data!.StartDate > DateTime.Now)
+            if (exam.Data!.StartDate > DateTimeOffset.UtcNow)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
             }
 
-            if (exam.Data.EndDate < DateTime.Now)
+            if (exam.Data.EndDate < DateTimeOffset.UtcNow)
             {
                 return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
             }
@@ -110,7 +110,7 @@ namespace ExamApp.Services.ExamResult
             {
                 UserId = userId,
                 ExamId = examId,
-                StartDate = DateTime.UtcNow,
+                StartDate = DateTimeOffset.UtcNow,
                 TotalQuestions = questions.Data!.Count
             };
             await examResultRepository.AddAsync(examResult);
@@ -158,10 +158,10 @@ namespace ExamApp.Services.ExamResult
                 emptyAnswers = totalQuestions - (correctAnswers + incorrectAnswers);
                 score = (correctAnswers / (decimal)totalQuestions) * 100;
             }
-            var duration = (int)(DateTime.UtcNow - existingResult.StartDate).TotalMinutes;
+            var duration = (int)(DateTimeOffset.UtcNow - existingResult.StartDate).TotalMinutes;
 
             existingResult.Score = score;
-            existingResult.CompletionDate = DateTime.UtcNow;
+            existingResult.CompletionDate = DateTimeOffset.UtcNow;
             existingResult.Duration = duration;
             existingResult.CorrectAnswers = correctAnswers;
             existingResult.IncorrectAnswers = incorrectAnswers;
@@ -177,8 +177,8 @@ namespace ExamApp.Services.ExamResult
         {
             var expiredResults = await examResultRepository
                 .Where(x => x.CompletionDate == null &&
-                            (x.StartDate.AddMinutes(x.Exam.Duration) <= DateTime.UtcNow ||
-                             (x.StartDate.AddMinutes(x.Exam.Duration) > x.Exam.EndDate && x.Exam.EndDate <= DateTime.UtcNow)))
+                            (x.StartDate.AddMinutes(x.Exam.Duration) <= DateTimeOffset.UtcNow ||
+                             (x.StartDate.AddMinutes(x.Exam.Duration) > x.Exam.EndDate && x.Exam.EndDate <= DateTimeOffset.UtcNow)))
                 .Include(x => x.Exam)
                 .ToListAsync();
 
@@ -217,8 +217,8 @@ namespace ExamApp.Services.ExamResult
                 .Where(x => x.CompletionDate != null)
                 .Select(x =>
             {
-                x.StartDate = dateTimeService.ConvertToTurkeyTime(x.StartDate);
-                x.CompletionDate = dateTimeService.ConvertToTurkeyTime(x.CompletionDate!.Value);
+                x.StartDate = dateTimeService.ConvertFromUtc(x.StartDate);
+                x.CompletionDate = dateTimeService.ConvertFromUtc(x.CompletionDate!.Value);
                 var dto = mapper.Map<ExamResultResponseDto>(x);
                 x.StartDate = dateTimeService.ConvertToUtc(x.StartDate);
                 x.CompletionDate = dateTimeService.ConvertToUtc(x.CompletionDate!.Value);

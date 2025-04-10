@@ -11,7 +11,7 @@ namespace ExamApp.Repositories.Answers
         public int QuestionId { get; set; }
         public Question Question { get; set; }
         public string? SelectedAnswer { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; }
+        public DateTimeOffset CreatedDate { get; set; }
         public bool? IsCorrect { get; set; }
     }
 }
