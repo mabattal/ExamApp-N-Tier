@@ -156,6 +156,48 @@ namespace ExamApp.Services.Exam
             return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
         }
 
+        public async Task<ServiceResult<List<ExamWithInstructorResponseDto>>> GetPastExamsAsync()
+        {
+            var exams = await examRepository.GetPastExams().ToListAsync();
+            if (!exams.Any())
+            {
+                return ServiceResult<List<ExamWithInstructorResponseDto>>.Fail("There is no past exam.", HttpStatusCode.NotFound);
+            }
+
+            var examAsDto = exams.Select(e =>
+            {
+                e.StartDate = dateTimeService.ConvertFromUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertFromUtc(e.EndDate);
+                var dto = mapper.Map<ExamWithInstructorResponseDto>(e);
+                e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
+                return dto;
+            }).ToList();
+
+            return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
+        }
+
+        public async Task<ServiceResult<List<ExamWithInstructorResponseDto>>> GetUpcomingExamsAsync()
+        {
+            var exams = await examRepository.GetUpcomingExams().ToListAsync();
+            if (!exams.Any())
+            {
+                return ServiceResult<List<ExamWithInstructorResponseDto>>.Fail("There is no upcoming exam.", HttpStatusCode.NotFound);
+            }
+
+            var examAsDto = exams.Select(e =>
+            {
+                e.StartDate = dateTimeService.ConvertFromUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertFromUtc(e.EndDate);
+                var dto = mapper.Map<ExamWithInstructorResponseDto>(e);
+                e.StartDate = dateTimeService.ConvertToUtc(e.StartDate);
+                e.EndDate = dateTimeService.ConvertToUtc(e.EndDate);
+                return dto;
+            }).ToList();
+
+            return ServiceResult<List<ExamWithInstructorResponseDto>>.Success(examAsDto);
+        }
+
         public async Task<ServiceResult<ExamWithDetailsResponseDto?>> GetByIdAsync(int id)
         {
             var exam = await examRepository.GetExamWithDetailsAsync(id);

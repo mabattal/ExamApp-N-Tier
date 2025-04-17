@@ -69,18 +69,18 @@ namespace ExamApp.Services.Question
 
         public async Task<ServiceResult> UpdateAsync(int id, UpdateQuestionRequestDto updateQuestionRequest, int userId)
         {
-            var question = await questionRepository.GetByIdAsync(id);
+            var question = await questionRepository.Where(q => q.QuestionId == id).Include(q => q.Exam).FirstOrDefaultAsync();
             if (question is null)
             {
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
             }
 
-            if (question.Exam.Instructor.UserId != userId)
+            if (question.Exam.CreatedBy != userId)
             {
                 return ServiceResult.Fail("You are not authorized to update this question.", HttpStatusCode.Unauthorized);
             }
 
-            if (DateTime.Now > question.Exam.StartDate)
+            if (DateTimeOffset.UtcNow > question.Exam.StartDate)
             {
                 return ServiceResult.Fail("You cannot update a question in an exam that has already started.", HttpStatusCode.BadRequest);
             }
@@ -101,18 +101,18 @@ namespace ExamApp.Services.Question
 
         public async Task<ServiceResult> DeleteAsync(int id, int userId)
         {
-            var question = await questionRepository.GetByIdAsync(id);
+            var question = await questionRepository.Where(q => q.QuestionId == id).Include(q=> q.Exam).FirstOrDefaultAsync();
             if (question is null)
             {
                 return ServiceResult.Fail("Question not found", HttpStatusCode.NotFound);
             }
 
-            if (question.Exam.Instructor.UserId != userId)
+            if (question.Exam.CreatedBy != userId)
             {
                 return ServiceResult.Fail("You are not authorized to update this question.", HttpStatusCode.Unauthorized);
             }
 
-            if (DateTime.Now > question.Exam.StartDate)
+            if (DateTimeOffset.UtcNow > question.Exam.StartDate)
             {
                 return ServiceResult.Fail("You cannot delete a question in an exam that has already started.", HttpStatusCode.BadRequest);
             }

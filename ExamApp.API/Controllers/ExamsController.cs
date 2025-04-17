@@ -28,6 +28,22 @@ namespace ExamApp.API.Controllers
         }
 
         [Authorize(Roles = "Student, Instructor, Admin")]
+        [HttpGet("past")]
+        public async Task<IActionResult> GetPastExams()
+        {
+            var result = await _examService.GetPastExamsAsync();
+            return CreateActionResult(result);
+        }
+
+        [Authorize(Roles = "Student, Instructor, Admin")]
+        [HttpGet("upcoming")]
+        public async Task<IActionResult> GetUpcomingExams()
+        {
+            var result = await _examService.GetUpcomingExamsAsync();
+            return CreateActionResult(result);
+        }
+
+        [Authorize(Roles = "Student, Instructor, Admin")]
         [HttpGet("{examId:int}")]
         public async Task<IActionResult> GetById(int examId)
         {

@@ -16,7 +16,7 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
-        [Authorize(Roles = "Instructor, Admin")]
+        [Authorize(Roles = "Student, Instructor, Admin")]
         [HttpGet("{userId:int}/{examId:int}")]
         public async Task<IActionResult> GetExamResultByUserIdAndExamId(int userId, int examId)
         {
