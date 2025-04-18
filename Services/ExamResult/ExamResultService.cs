@@ -30,7 +30,7 @@ namespace ExamApp.Services.ExamResult
 
             if (examResult.CompletionDate is null)
             {
-                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.")!;
             }
 
             examResult.StartDate = dateTimeService.ConvertFromUtc(examResult.StartDate);
@@ -52,7 +52,7 @@ namespace ExamApp.Services.ExamResult
 
             if (examResult.CompletionDate is null)
             {
-                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.", HttpStatusCode.BadRequest)!;
+                return ServiceResult<ExamResultResponseDto>.Fail("Exam result has not been submitted yet.")!;
             }
 
             examResult.StartDate = dateTimeService.ConvertFromUtc(examResult.StartDate);
@@ -86,18 +86,18 @@ namespace ExamApp.Services.ExamResult
 
             if (exam.Data!.StartDate > DateTimeOffset.UtcNow)
             {
-                return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Exam has not started yet.");
             }
 
             if (exam.Data.EndDate < DateTimeOffset.UtcNow)
             {
-                return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Exam has already ended.");
             }
 
             var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
             if (existingResult)
             {
-                return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Exam already started.");
             }
 
             var questions = await questionService.GetByExamIdAsync(examId);
@@ -133,11 +133,9 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail("Exam result is not found.", HttpStatusCode.NotFound);
             }
 
-            if (existingResult.Score != null && existingResult.CompletionDate != null &&
-                existingResult.CorrectAnswers != null && existingResult.IncorrectAnswers != null &&
-                existingResult.Duration != null)
+            if (existingResult is { Score: not null, CompletionDate: not null, CorrectAnswers: not null, IncorrectAnswers: not null, Duration: not null })
             {
-                return ServiceResult.Fail("Exam has already been submitted.", HttpStatusCode.BadRequest);
+                return ServiceResult.Fail("Exam has already been submitted.");
             }
 
             var questions = await questionService.GetByExamIdAsync(examId);
