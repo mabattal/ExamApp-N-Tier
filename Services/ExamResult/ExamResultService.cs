@@ -84,18 +84,6 @@ namespace ExamApp.Services.ExamResult
                 return ServiceResult.Fail(exam.ErrorMessage!, exam.Status);
             }
 
-            var questions = await questionService.GetByExamIdAsync(examId);
-            if (questions.IsFail)
-            {
-                return ServiceResult.Fail(questions.ErrorMessage!, questions.Status);
-            }
-
-            var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
-            if (existingResult)
-            {
-                return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
-            }
-
             if (exam.Data!.StartDate > DateTimeOffset.UtcNow)
             {
                 return ServiceResult.Fail("Exam has not started yet.", HttpStatusCode.BadRequest);
@@ -105,6 +93,19 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult.Fail("Exam has already ended.", HttpStatusCode.BadRequest);
             }
+
+            var existingResult = await examResultRepository.Where(x => x.ExamId == examId && x.UserId == userId).AnyAsync();
+            if (existingResult)
+            {
+                return ServiceResult.Fail("Exam already started.", HttpStatusCode.BadRequest);
+            }
+
+            var questions = await questionService.GetByExamIdAsync(examId);
+            if (questions.IsFail)
+            {
+                return ServiceResult.Fail(questions.ErrorMessage!, questions.Status);
+            }
+
 
             var examResult = new Repositories.ExamResults.ExamResult()
             {
