@@ -211,7 +211,7 @@ namespace ExamApp.Services.ExamResult
             {
                 return ServiceResult<List<ExamResultResponseDto>>.Fail("No completed exam results found.", HttpStatusCode.NotFound);
             }
-            
+
             var examResultsAsDto = examResults
                 .Where(x => x.CompletionDate != null)
                 .Select(x =>
@@ -227,17 +227,28 @@ namespace ExamApp.Services.ExamResult
             return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);
         }
 
-        public async Task<ServiceResult<ExamResultAverageScoreResponseDto>> GetAverageScoreByExamAsync(int examId)
+        public async Task<ServiceResult<ExamResultStatisticsResponseDto>> GetStatisticsByExamAsync(int examId)
         {
-            var examResults = await examResultRepository.Where(x => x.ExamId == examId).AnyAsync();
-            if (!examResults)
+            var examResultsExist = await examResultRepository.Where(x => x.ExamId == examId).AnyAsync();
+            if (!examResultsExist)
             {
-                return ServiceResult<ExamResultAverageScoreResponseDto>.Fail("No exam results found.", HttpStatusCode.NotFound);
+                return ServiceResult<ExamResultStatisticsResponseDto>.Fail("No exam results found.", HttpStatusCode.NotFound);
             }
 
-            var averageScore = examResultRepository.GetAverageScoreByExamAsync(examId);
+            var averageScore = await examResultRepository.GetAverageScoreByExamAsync(examId);
+            var maxScore = await examResultRepository.GetMaxScoreByExamAsync(examId);
+            var minScore = await examResultRepository.GetMinScoreByExamAsync(examId);
+            var studentCount = await examResultRepository.GetExamCountByExamAsync(examId);
 
-            return ServiceResult<ExamResultAverageScoreResponseDto>.Success(new ExamResultAverageScoreResponseDto(averageScore.Result));
+            var statisticsAsDto = new ExamResultStatisticsResponseDto(
+                studentCount,
+                averageScore,
+                maxScore,
+                minScore
+            );
+
+            return ServiceResult<ExamResultStatisticsResponseDto>.Success(statisticsAsDto);
         }
+
     }
 }

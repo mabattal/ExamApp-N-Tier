@@ -8,7 +8,7 @@
         Task<ServiceResult> StartExamAsync(int examId, int userId);
         Task<ServiceResult> SubmitExamAsync(int examId, int userId);
         Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId);
-        Task<ServiceResult<ExamResultAverageScoreResponseDto>> GetAverageScoreByExamAsync(int examId);
+        Task<ServiceResult<ExamResultStatisticsResponseDto>> GetStatisticsByExamAsync(int examId);
         Task<ServiceResult> AutoSubmitExpiredExamsAsync();                                          // Sınavı otomatik tamamlamayı sağlayan metot
     }
 }
