@@ -157,7 +157,7 @@ namespace ExamApp.Services.ExamResult
                 emptyAnswers = totalQuestions - (correctAnswers + incorrectAnswers);
                 score = (correctAnswers / (decimal)totalQuestions) * 100;
             }
-            var duration = (int)(DateTimeOffset.UtcNow - existingResult.StartDate).TotalMinutes;
+            var duration = (int)Math.Ceiling((DateTimeOffset.UtcNow - existingResult.StartDate).TotalMinutes);
 
             existingResult.Score = score;
             existingResult.CompletionDate = DateTimeOffset.UtcNow;
