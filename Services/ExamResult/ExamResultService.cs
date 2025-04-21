@@ -250,5 +250,27 @@ namespace ExamApp.Services.ExamResult
             return ServiceResult<ExamResultStatisticsResponseDto>.Success(statisticsAsDto);
         }
 
+        //exam id'ye göre sonuçları getirir, user bilgileri ile birlikte
+        public async Task<ServiceResult<List<ExamResultResponseDto>>> GetByExamIdAsync(int examId)
+        {
+            var examResults = await examResultRepository.GetByExamId(examId).ToListAsync();
+            if (!examResults.Any())
+            {
+                return ServiceResult<List<ExamResultResponseDto>>.Fail("No exam results found.", HttpStatusCode.NotFound);
+            }
+            var examResultsAsDto = examResults
+                .Select(x =>
+                {
+                    x.StartDate = dateTimeService.ConvertFromUtc(x.StartDate);
+                    x.CompletionDate = dateTimeService.ConvertFromUtc(x.CompletionDate!.Value);
+                    var dto = mapper.Map<ExamResultResponseDto>(x);
+                    x.StartDate = dateTimeService.ConvertToUtc(x.StartDate);
+                    x.CompletionDate = dateTimeService.ConvertToUtc(x.CompletionDate!.Value);
+                    return dto;
+                }).ToList();
+            return ServiceResult<List<ExamResultResponseDto>>.Success(examResultsAsDto);
+        }
+
+
     }
 }

@@ -10,5 +10,6 @@
         Task<ServiceResult<List<ExamResultResponseDto>>> GetByUserIdAsync(int userId);
         Task<ServiceResult<ExamResultStatisticsResponseDto>> GetStatisticsByExamAsync(int examId);
         Task<ServiceResult> AutoSubmitExpiredExamsAsync();                                          // Sınavı otomatik tamamlamayı sağlayan metot
+        Task<ServiceResult<List<ExamResultResponseDto>>> GetByExamIdAsync(int examId);
     }
 }

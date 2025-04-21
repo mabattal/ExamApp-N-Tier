@@ -3,6 +3,7 @@
     public record ExamResultResponseDto(
         int ResultId,
         int UserId,
+        Repositories.Users.User User,
         int ExamId,
         decimal? Score,
         DateTimeOffset StartDate,

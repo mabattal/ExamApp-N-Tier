@@ -8,6 +8,7 @@
         Task<int> GetExamCountByExamAsync(int examId);               //sınava giren öğrenci sayısı
         IQueryable<ExamResult> GetByUserId(int userId);
         IQueryable<ExamResult> GetByUserIdAndExamId(int userId, int examId);
+        IQueryable<ExamResult> GetByExamId(int examId);
     }
 
 }

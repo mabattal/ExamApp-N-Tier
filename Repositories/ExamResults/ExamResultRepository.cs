@@ -30,6 +30,11 @@ namespace ExamApp.Repositories.ExamResults
             return context.ExamResults.Where(er => er.UserId == userId);
         }
 
+        public IQueryable<ExamResult> GetByExamId(int examId)
+        {
+            return context.ExamResults.Where(er => er.ExamId == examId).Include(u =>u.User);
+        }
+
         public IQueryable<ExamResult> GetByUserIdAndExamId(int userId, int examId)
         {
             return context.ExamResults.Where(er => er.UserId == userId && er.ExamId == examId);
