@@ -138,5 +138,23 @@ namespace ExamApp.Services.Question
             var questionsAsDto = mapper.Map<List<QuestionResponseWithoutCorrectAnswerDto>>(questions);
             return ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>.Success(questionsAsDto);
         }
+
+        public async Task<ServiceResult<List<QuestionResponseDto>>> GetByExamIdWithCorrectAnswerAsync(int examId)
+        {
+            var exam = await examService.GetByIdAsync(examId);
+            if (exam.IsFail)
+            {
+                return ServiceResult<List<QuestionResponseDto>>.Fail(exam.ErrorMessage!, exam.Status);
+            }
+
+            var questions = await questionRepository.GetByExamId(examId).ToListAsync();
+            if (!questions.Any())
+            {
+                return ServiceResult<List<QuestionResponseDto>>.Fail("No questions found for the given exam.", HttpStatusCode.NotFound);
+            }
+
+            var questionsAsDto = mapper.Map<List<QuestionResponseDto>>(questions);
+            return ServiceResult<List<QuestionResponseDto>>.Success(questionsAsDto);
+        }
     }
 }

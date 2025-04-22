@@ -10,6 +10,7 @@ namespace ExamApp.Services.Question
         Task<ServiceResult> UpdateAsync(int id, UpdateQuestionRequestDto updateQuestionRequest, int userId);
         Task<ServiceResult> DeleteAsync(int id, int userId);
         Task<ServiceResult<List<QuestionResponseWithoutCorrectAnswerDto>>> GetByExamIdAsync(int examId);
+        Task<ServiceResult<List<QuestionResponseDto>>> GetByExamIdWithCorrectAnswerAsync(int examId);
 
     }
 }

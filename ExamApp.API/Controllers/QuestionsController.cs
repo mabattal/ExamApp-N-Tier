@@ -27,6 +27,14 @@ namespace ExamApp.API.Controllers
         }
 
         [Authorize(Roles = "Instructor, Admin")]
+        [HttpGet("withCorrectAnswer/examId/{examId:int}")]
+        public async Task<IActionResult> GetByExamIdWithCorrectAnswer(int examId)
+        {
+            var result = await questionService.GetByExamIdWithCorrectAnswerAsync(examId);
+            return CreateActionResult(result);
+        }
+
+        [Authorize(Roles = "Instructor, Admin")]
         [HttpPost]
         public async Task<IActionResult> Add(CreateQuestionRequestDto createQuestionRequest)
         {
