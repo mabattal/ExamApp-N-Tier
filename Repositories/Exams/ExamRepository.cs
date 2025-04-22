@@ -15,20 +15,20 @@ namespace ExamApp.Repositories.Exams
         public IQueryable<Exam> GetActiveExams()
         {
             return context.Exams
-                .Where(e => !e.IsDeleted && e.StartDate <= DateTimeOffset.UtcNow && e.EndDate >= DateTimeOffset.UtcNow)
+                .Where(e => !e.IsDeleted && e.StartDate <= DateTimeOffset.UtcNow && e.EndDate >= DateTimeOffset.UtcNow && e.Questions.Count > 0)
                 .Include(e => e.Instructor);
         }
         public IQueryable<Exam> GetPastExams()
         {
             return context.Exams
-                .Where(e => !e.IsDeleted && e.EndDate <= DateTimeOffset.UtcNow)
+                .Where(e => !e.IsDeleted && e.EndDate <= DateTimeOffset.UtcNow && e.Questions.Count > 0)
                 .Include(e => e.Instructor);
         }
 
         public IQueryable<Exam> GetUpcomingExams()
         {
             return context.Exams
-                .Where(e => !e.IsDeleted && e.StartDate >= DateTimeOffset.UtcNow)
+                .Where(e => !e.IsDeleted && e.StartDate >= DateTimeOffset.UtcNow && e.Questions.Count > 0)
                 .Include(e => e.Instructor);
         }
 
