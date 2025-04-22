@@ -54,5 +54,13 @@ namespace ExamApp.API.Controllers
             return CreateActionResult(result);
         }
 
+        [Authorize(Roles = "Instructor, Admin")]
+        [HttpGet("exam/{userId:int}/{examId:int}")]
+        public async Task<IActionResult> GetByUserAndExam(int userId, int examId)
+        {
+            var result = await answerService.GetByUserAndExamAsync(userId, examId);
+            return CreateActionResult(result);
+        }
+
     }
 }

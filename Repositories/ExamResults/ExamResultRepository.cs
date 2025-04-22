@@ -32,7 +32,7 @@ namespace ExamApp.Repositories.ExamResults
 
         public IQueryable<ExamResult> GetByExamId(int examId)
         {
-            return context.ExamResults.Where(er => er.ExamId == examId).Include(u =>u.User);
+            return context.ExamResults.Include(u => u.User).Where(er => er.ExamId == examId);
         }
 
         public IQueryable<ExamResult> GetByUserIdAndExamId(int userId, int examId)
