@@ -71,7 +71,6 @@ namespace ExamApp.Services.Answer
 
             var answer = mapper.Map<Repositories.Answers.Answer>(createAnswerRequest);
             answer.UserId = userId;
-            answer.CreatedDate = DateTimeOffset.UtcNow;
             answer.IsCorrect = isCorrect;
 
             await answerRepository.AddAsync(answer);
@@ -133,7 +132,6 @@ namespace ExamApp.Services.Answer
                             request.SelectedAnswer.Equals(question.Data!.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
             
             mapper.Map(request, answer);
-            answer.CreatedDate = DateTimeOffset.UtcNow;
             answer.IsCorrect = isCorrect;
 
             answerRepository.Update(answer);

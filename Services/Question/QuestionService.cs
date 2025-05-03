@@ -1,12 +1,11 @@
-﻿using System.Net;
-using AutoMapper;
+﻿using AutoMapper;
 using ExamApp.Repositories;
+using ExamApp.Repositories.Questions;
 using ExamApp.Services.Exam;
-using Microsoft.EntityFrameworkCore;
 using ExamApp.Services.Question.Create;
 using ExamApp.Services.Question.Update;
-using ExamApp.Repositories.Questions;
-using ExamApp.Repositories.Users;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace ExamApp.Services.Question
 {
@@ -48,7 +47,7 @@ namespace ExamApp.Services.Question
                 return ServiceResult<CreateQuestionResponseDto>.Fail("You are not authorized to add a question to this exam.", HttpStatusCode.Unauthorized)!;
             }
 
-            if (DateTime.Now > exam.Data!.StartDate)
+            if (DateTimeOffset.UtcNow > exam.Data!.StartDate)
             {
                 return ServiceResult<CreateQuestionResponseDto>.Fail("You cannot add a question to an exam that has already started.", HttpStatusCode.BadRequest)!;
             }
