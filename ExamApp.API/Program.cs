@@ -3,14 +3,11 @@ using ExamApp.Repositories.Extensions;
 using ExamApp.Services;
 using ExamApp.Services.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers(options =>
 {
@@ -52,9 +49,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//.net'in default olarak ModelStateInvalidFilter'ý eklemesini engelledik
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
-
 //Repository ve Service'leri ekledik(Extension olarak)
 builder.Services.AddRepositories(builder.Configuration).AddServices(builder.Configuration);
 
@@ -83,8 +77,7 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
-//Cors ayarlarýný ekledik
-//bu ayarý yapma sebebimiz, client tarafýnda farklý bir domainde çalýþan uygulamalarýn bu apiye eriþebilmesi için
+//Cors ayarlarýný ekledik. Bu ayarý yapma sebebimiz, client tarafýnda farklý bir domainde çalýþan uygulamalarýn bu apiye eriþebilmesi için
 builder.Services.AddCustomCors(builder.Configuration);
 
 var app = builder.Build();

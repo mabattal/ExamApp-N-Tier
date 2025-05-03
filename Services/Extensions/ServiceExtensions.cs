@@ -7,6 +7,7 @@ using ExamApp.Services.Question;
 using ExamApp.Services.User;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,9 @@ namespace ExamApp.Services.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
+            //.net'in default olarak ModelStateInvalidFilter'ı eklemesini engelledik
+            services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAnswerService, AnswerService>();
             services.AddScoped<IQuestionService, QuestionService>();
