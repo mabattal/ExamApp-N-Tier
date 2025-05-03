@@ -3,7 +3,7 @@ using ExamApp.Repositories.Users;
 
 namespace ExamApp.Repositories.Exams
 {
-    public class Exam
+    public class Exam : IAuditEntity
     {
         public int ExamId { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -15,5 +15,7 @@ namespace ExamApp.Repositories.Exams
         public User Instructor { get; set; }
         public ICollection<Question> Questions { get; set; } = new List<Question>();
         public bool IsDeleted { get; set; } = false;
+        public DateTimeOffset CreatedDate { get; set; }
+        public DateTimeOffset? UpdatedDate { get; set; }
     }
 }

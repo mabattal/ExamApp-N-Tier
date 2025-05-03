@@ -2,7 +2,7 @@
 
 namespace ExamApp.Repositories.Questions
 {
-    public class Question
+    public class Question : IAuditEntity
     {
         public int QuestionId { get; set; }
         public int ExamId { get; set; }
@@ -13,5 +13,7 @@ namespace ExamApp.Repositories.Questions
         public string OptionC { get; set; }
         public string OptionD { get; set; }
         public string CorrectAnswer { get; set; }
+        public DateTimeOffset CreatedDate { get; set; }
+        public DateTimeOffset? UpdatedDate { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using ExamApp.Repositories.Database;
 using ExamApp.Repositories.ExamResults;
 using ExamApp.Repositories.Exams;
+using ExamApp.Repositories.Interceptors;
 using ExamApp.Repositories.Questions;
 using ExamApp.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ namespace ExamApp.Repositories.Extensions
                 {
                     sqlServerOptionsAction.MigrationsAssembly(typeof(RepositoryAssembly).Assembly.FullName);
                 });
+
+                options.AddInterceptors(new AuditDbContextInterceptor());
             });
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
