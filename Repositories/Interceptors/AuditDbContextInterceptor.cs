@@ -28,15 +28,11 @@ namespace ExamApp.Repositories.Interceptors
         {
             foreach (var entityEntry in eventData.Context!.ChangeTracker.Entries().ToList())
             {
-                if (entityEntry.Entity is not IAuditEntity auditEntity)
-                {
-                    continue;
-                }
+                if (entityEntry.Entity is not IAuditEntity auditEntity) continue;
 
-                if (Behaviors.TryGetValue(entityEntry.State, out var behavior))
-                {
-                    behavior(eventData.Context, auditEntity);
-                }
+                if (entityEntry.State is not (EntityState.Added or EntityState.Modified)) continue;
+
+                Behaviors[entityEntry.State](eventData.Context, auditEntity);
             }
 
             return base.SavingChangesAsync(eventData, result, cancellationToken);
