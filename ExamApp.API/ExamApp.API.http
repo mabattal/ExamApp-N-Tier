@@ -1,6 +1,240 @@
-@ExamApp.API_HostAddress = http://localhost:5052
+@ExamApp.API_HostAddress = https://localhost:7091
 
-GET {{ExamApp.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### ---------- AUTH CONTROLLER ---------- ###
 
-###
+### Giriþ Yap
+# @name login
+POST {{ExamApp.API_HostAddress}}/api/Auth/Login
+Content-Type: application/json
+
+{
+  "email": "e@e",
+  "password": "111"
+}
+
+### Token'ý deðiþkene ata
+@authToken = {{login.response.body.data.token}}
+
+### Kayýt Ol
+POST {{ExamApp.API_HostAddress}}/api/Auth/Register
+Content-Type: application/json
+
+{
+  "email": "yeni@example.com",
+  "password": "Test123!",
+  "firstName": "Ahmet",
+  "lastName": "Yýlmaz"
+}
+
+### Çýkýþ Yap
+POST {{ExamApp.API_HostAddress}}/api/Auth/Logout
+Authorization: Bearer {{authToken}}
+
+### ---------- USERS CONTROLLER ---------- ###
+
+### Tüm Kullanýcýlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Users
+Authorization: Bearer {{authToken}}
+
+### Sayfalý Kullanýcýlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Users/1/10
+Authorization: Bearer {{authToken}}
+
+### ID veya Email ile Kullanýcý Getir
+GET {{ExamApp.API_HostAddress}}/api/Users/2
+Authorization: Bearer {{authToken}}
+
+### Kullanýcý Ekle
+POST {{ExamApp.API_HostAddress}}/api/Users
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "email": "yeni2@example.com",
+    "password": "Test123!",
+    "fullName": "Mehmet",
+    "role": 2
+}
+
+### Kullanýcý Güncelle
+PUT {{ExamApp.API_HostAddress}}/api/Users/7
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "email": "yeni@example.com",
+    "password": "Test123!",
+    "fullName": "Mehmet",
+    "role": 2
+}
+
+### Kullanýcý Sil
+DELETE {{ExamApp.API_HostAddress}}/api/Users/7
+Authorization: Bearer {{authToken}}
+
+### Role Göre Kullanýcýlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Users/role/0
+Authorization: Bearer {{authToken}}
+
+### ---------- EXAMS CONTROLLER ---------- ###
+
+### Eðitmenin Sýnavlarýný Getir
+GET {{ExamApp.API_HostAddress}}/api/Exams/instructor/2
+Authorization: Bearer {{authToken}}
+
+### Aktif Sýnavlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Exams/active
+Authorization: Bearer {{authToken}}
+
+### Geçmiþ Sýnavlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Exams/past
+Authorization: Bearer {{authToken}}
+
+### Gelecek Sýnavlarý Getir
+GET {{ExamApp.API_HostAddress}}/api/Exams/upcoming
+Authorization: Bearer {{authToken}}
+
+### ID ile Sýnav Getir
+GET {{ExamApp.API_HostAddress}}/api/Exams/1
+Authorization: Bearer {{authToken}}
+
+### Yeni Sýnav Ekle
+POST {{ExamApp.API_HostAddress}}/api/Exams
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "title": "Matematik Sýnavý",
+    "description": "Final Sýnavý",
+    "startDate": "2025-05-10T10:00:00",
+    "endDate": "2025-05-10T12:00:00",
+    "duration": 120
+}
+
+### Sýnav Güncelle
+PUT {{ExamApp.API_HostAddress}}/api/Exams/1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "title": "Matematik Final Sýnavý",
+    "description": "Final Sýnavý - Güncellenmiþ",
+    "startDate": "2025-05-10T10:00:00",
+    "endDate": "2025-05-10T12:00:00",
+    "duration": 120
+}
+
+### Sýnav Sil
+DELETE {{ExamApp.API_HostAddress}}/api/Exams/1
+Authorization: Bearer {{authToken}}
+
+### ---------- QUESTIONS CONTROLLER ---------- ###
+
+### ID ile Soru Getir
+GET {{ExamApp.API_HostAddress}}/api/Questions/1
+Authorization: Bearer {{authToken}}
+
+### Sýnava Ait Sorularý Getir
+GET {{ExamApp.API_HostAddress}}/api/Questions/examId/1
+Authorization: Bearer {{authToken}}
+
+### Sýnava Ait Sorularý Doðru Cevaplarýyla Getir (Eðitmen/Admin)
+GET {{ExamApp.API_HostAddress}}/api/Questions/withCorrectAnswer/examId/1
+Authorization: Bearer {{authToken}}
+
+### Yeni Soru Ekle
+POST {{ExamApp.API_HostAddress}}/api/Questions
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "examId": 1,
+    "text": "2 + 2 kaçtýr?",
+    "options": ["3", "4", "5", "6"],
+    "correctOptionIndex": 1,
+    "points": 10
+}
+
+### Soru Güncelle
+PUT {{ExamApp.API_HostAddress}}/api/Questions/1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "text": "2 + 2 kaçtýr? (Güncellendi)",
+    "options": ["3", "4", "5", "6"],
+    "correctOptionIndex": 1,
+    "points": 15
+}
+
+### Soru Sil
+DELETE {{ExamApp.API_HostAddress}}/api/Questions/1
+Authorization: Bearer {{authToken}}
+
+### ---------- EXAM RESULTS CONTROLLER ---------- ###
+
+### Sýnav Sonucu Getir
+GET {{ExamApp.API_HostAddress}}/api/ExamResults/1
+Authorization: Bearer {{authToken}}
+
+### Kullanýcý ve Sýnava Göre Sonuç Getir
+GET {{ExamApp.API_HostAddress}}/api/ExamResults/1/1
+Authorization: Bearer {{authToken}}
+
+### Sýnavý Baþlat
+POST {{ExamApp.API_HostAddress}}/api/ExamResults/start/1
+Authorization: Bearer {{authToken}}
+
+### Sýnavý Bitir
+POST {{ExamApp.API_HostAddress}}/api/ExamResults/submit/1
+Authorization: Bearer {{authToken}}
+
+### Kullanýcýnýn Tüm Sýnav Sonuçlarýný Getir
+GET {{ExamApp.API_HostAddress}}/api/ExamResults/user/1
+Authorization: Bearer {{authToken}}
+
+### Sýnava Ait Tüm Sonuçlarý Getir (Eðitmen/Admin)
+GET {{ExamApp.API_HostAddress}}/api/ExamResults/exam/1
+Authorization: Bearer {{authToken}}
+
+### Sýnav Ýstatistiklerini Getir
+GET {{ExamApp.API_HostAddress}}/api/ExamResults/statistics/1
+Authorization: Bearer {{authToken}}
+
+### ---------- ANSWERS CONTROLLER ---------- ###
+
+### ID ile Cevap Getir
+GET {{ExamApp.API_HostAddress}}/api/Answers/1
+Authorization: Bearer {{authToken}}
+
+### Yeni Cevap Ekle
+POST {{ExamApp.API_HostAddress}}/api/Answers
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "questionId": 1,
+    "examResultId": 1,
+    "selectedOptionIndex": 1
+}
+
+### Cevap Güncelle
+PUT {{ExamApp.API_HostAddress}}/api/Answers/1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "selectedOptionIndex": 2
+}
+
+### Cevap Sil
+DELETE {{ExamApp.API_HostAddress}}/api/Answers/1
+Authorization: Bearer {{authToken}}
+
+### Kullanýcýnýn Sýnav Cevaplarýný Getir
+GET {{ExamApp.API_HostAddress}}/api/Answers/exam/1
+Authorization: Bearer {{authToken}}
+
+### Belirli Kullanýcýnýn Sýnav Cevaplarýný Getir (Eðitmen/Admin)
+GET {{ExamApp.API_HostAddress}}/api/Answers/exam/1/1
+Authorization: Bearer {{authToken}}
