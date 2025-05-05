@@ -3,6 +3,7 @@ using ExamApp.Services.Answer;
 using ExamApp.Services.Authentication;
 using ExamApp.Services.Exam;
 using ExamApp.Services.ExamResult;
+using ExamApp.Services.ExceptionHandlers;
 using ExamApp.Services.Question;
 using ExamApp.Services.User;
 using FluentValidation;
@@ -34,6 +35,9 @@ namespace ExamApp.Services.Extensions
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddScoped<JwtService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddExceptionHandler<CriticalExceptionHandler>();
+            services.AddExceptionHandler<GlobalExceptionHandler>();
 
             return services;
         }
