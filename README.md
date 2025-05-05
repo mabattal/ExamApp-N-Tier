@@ -31,9 +31,6 @@
 
 ---
 
-
----
-
 ## 💡 Tasarım Yaklaşımları
 
 - 🧱 **SOLID Prensipleri**: Esnek, test edilebilir ve sürdürülebilir kod.
@@ -86,27 +83,6 @@ Authorization: Bearer {token}
 🧪 HTTP Test Dosyası
 ExamApp.http dosyasını kullanarak VS Code gibi editörlerde test yapılabilir.
 
-Örnekler
-
-Kullanıcıları Listele
-
-```json
-GET https://localhost:7091/api/Users
-Authorization: Bearer {{authToken}}
-``` 
-
-Yeni Kullanıcı Kaydı
-```json
-POST /api/Auth/Register
-Content-Type: application/json
-
-{
-  "email": "newuser@example.com",
-  "password": "Test123!",
-  "firstName": "Ali",
-  "lastName": "Kaya"
-}
-``` 
 👤 Roller ve Yetkiler
 | Rol        | Yetkiler                          |
 | ---------- | --------------------------------- |
